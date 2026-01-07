@@ -12,7 +12,9 @@ import {
   Smartphone,
   ClipboardList,
   HelpCircle,
-  Plus
+  Plus,
+  UtensilsCrossed,
+  ChefHat
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,9 +38,14 @@ export default function LandingPage() {
             <div className="flex items-center gap-3 group cursor-pointer">
               <div className="relative">
                  {/* Placeholder for Logo */}
-                 <div className="w-10 h-10 bg-[#0090BF] rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-900/10">
-                   R
-                 </div>
+                 
+                   <Image
+                     src="/republic-bank.jpg"
+                     alt="RepublicLunch Logo"
+                     width={40}
+                     height={40}
+                   />
+
               </div>
               <div className="flex flex-col">
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#0090BF] transition">
@@ -289,43 +296,196 @@ export default function LandingPage() {
 
       {/* --- FAQ SECTION --- */}
       <section id="faq" className="py-24 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-           <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">Frequently Asked Questions</h2>
-           
-           <div className="space-y-4">
-             {[
-               { q: "Is the food really free?", a: "Yes. The Republic Bank Welfare Department subsidizes 100% of the cost for one meal per staff member per working day." },
-               { q: "What happens if I miss the 9:00 AM cutoff?", a: "To ensure our kitchen partners have accurate numbers and reduce waste, orders lock at 9:00 AM sharp. You will not be able to place or change an order after this time." },
-               { q: "Can I order for the whole week at once?", a: "Absolutely. In fact, we encourage it. The menu for the upcoming week is released every Sunday evening." },
-               { q: "I have a food allergy. Where can I see ingredients?", a: "Clicking on any menu item in the dashboard reveals a detailed description including common allergens." }
-             ].map((item, idx) => (
-               <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden">
-                 <button 
-                   onClick={() => toggleFaq(idx)}
-                   className="w-full flex justify-between items-center p-5 text-left bg-slate-50 hover:bg-slate-100 transition"
-                 >
-                   <span className="font-bold text-slate-800">{item.q}</span>
-                   <Plus className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-45' : ''}`} />
-                 </button>
-                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 p-5 pt-0' : 'max-h-0'}`}>
-                   <p className="text-slate-600 mt-4 leading-relaxed">{item.a}</p>
-                 </div>
-               </div>
-             ))}
-           </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            
+            {/* Left Side: Image */}
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 h-full min-h-[500px] hidden lg:block group">
+              {/* Overlay Gradient for text readability if needed */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0090BF]/80 to-transparent z-10 opacity-60"></div>
+              
+              <img 
+                src="/happy-2.jpg" 
+                alt="Fresh Ingredients" 
+                className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105"
+              />
+              
+              <div className="absolute bottom-8 left-8 z-20 text-white max-w-xs">
+                <div className="bg-[#FFB81C] text-[#0033A1] text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">
+                  Support
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Have more questions?</h3>
+                <p className="text-blue-50 text-sm">
+                  Contact the Welfare Department directly on <span className="font-bold text-white">Ext 4050</span>.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Side: FAQ Content */}
+            <div className="pt-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">
+                Frequently Asked <br />
+                <span className="text-[#0090BF]">Questions</span>
+              </h2>
+              <p className="text-slate-500 mb-10 text-lg">
+                Everything you need to know about the new lunch reservation system.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  { q: "Is the food really free?", a: "Yes. The Republic Bank Welfare Department subsidizes 100% of the cost for one meal per staff member per working day." },
+                  { q: "What happens if I miss the 9:00 AM cutoff?", a: "To ensure our kitchen partners have accurate numbers and reduce waste, orders lock at 9:00 AM sharp. You will not be able to place or change an order after this time." },
+                  { q: "Can I order for the whole week at once?", a: "Absolutely. In fact, we encourage it. The menu for the upcoming week is released every Sunday evening." },
+                  { q: "I have a food allergy. Where can I see ingredients?", a: "Clicking on any menu item in the dashboard reveals a detailed description including common allergens." }
+                ].map((item, idx) => (
+                  <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden">
+                    <button 
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full flex justify-between items-center p-5 text-left bg-slate-50 hover:bg-slate-100 transition group"
+                    >
+                      <span className="font-bold text-slate-800 group-hover:text-[#0090BF] transition-colors">{item.q}</span>
+                      {/* Note: Ensure 'Plus' is imported from lucide-react */}
+                      <Plus className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-45 text-[#0090BF]' : ''}`} />
+                    </button>
+                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === idx ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <div className="p-5 pt-0">
+                        <p className="text-slate-600 leading-relaxed border-t border-slate-100 pt-4">{item.a}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* --- CTA BANNER --- */}
-      <section className="bg-[#0090BF] py-20">
-        <div className="max-w-4xl mx-auto text-center px-4">
-           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to plan your lunch?</h2>
-           <p className="text-blue-100 mb-8 text-lg">Join your colleagues and enjoy fresh, high-quality meals every day.</p>
-           <Link href="/login" className="inline-flex items-center gap-2 bg-white text-[#0090BF] px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition shadow-xl">
-              Log in with Staff ID
-           </Link>
+      <section className="relative w-full py-24 lg:py-32 overflow-hidden bg-slate-900">
+      
+      {/* --- BACKGROUND LAYER --- */}
+      {/* We use a high-quality image of a corporate/social setting to imply community. 
+          The overlay ensures text contrast is always AA accessible. */}
+      <div className="absolute inset-0 z-0">
+        <image
+          src="happy-1.jpg"
+          alt="Republic Bank Staff Dining"
+          
+          className="object-cover opacity-40"
+          priority
+        />
+        {/* The Republic Blue Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0090BF]/95 to-[#002a85]/90 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+      </div>
+
+      {/* --- CONTENT LAYER --- */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Left Column: Typography & Value Props */}
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium">
+              <ChefHat className="w-4 h-4 text-[#FFB81C]" />
+              <span>Premium Staff Welfare</span>
+            </div>
+
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">
+              Lunch is served. <br />
+              <span className="text-blue-200">Are you on the list?</span>
+            </h2>
+
+            <p className="text-lg md:text-xl text-blue-50/90 max-w-lg leading-relaxed font-light">
+              Join your colleagues in the new digital cafeteria. Experience the convenience of planning your weekly nutrition with zero friction.
+            </p>
+
+            {/* Feature Pills */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <div className="flex items-center gap-3 text-white/80">
+                <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                  <Clock className="w-5 h-5 text-[#FFB81C]" />
+                </div>
+                <span className="text-sm font-medium">Book in seconds</span>
+              </div>
+              <div className="flex items-center gap-3 text-white/80">
+                <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                  <UtensilsCrossed className="w-5 h-5 text-[#FFB81C]" />
+                </div>
+                <span className="text-sm font-medium">Curated Local & Continental</span>
+              </div>
+            </div>
+            
+            <div className="pt-4">
+              <Link 
+                href="/login" 
+                className="group relative inline-flex items-center justify-center gap-3 bg-white text-[#0090BF] px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 hover:bg-[#FFB81C] hover:text-[#002a85] hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:-translate-y-1"
+              >
+                <span>Log in with Staff ID</span>
+                <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+              <p className="mt-4 text-sm text-blue-200/60 font-medium">
+                Protected by Republic Bank Internal Systems
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Visual Element / Glass Card */}
+          {/* This represents the "System" - clean, organized, secure */}
+          <div className="hidden lg:block relative">
+            {/* Decorative background blur circle */}
+            <div className="absolute -top-20 -right-20 w-96 h-96 bg-[#FFB81C] rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-pulse"></div>
+
+            <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-6">
+                 <div>
+                    <h3 className="text-white font-bold text-xl">My Reservation</h3>
+                    <p className="text-blue-200 text-sm">Upcoming Week</p>
+                 </div>
+                 <ShieldCheck className="w-8 h-8 text-[#FFB81C]" />
+              </div>
+
+              <div className="space-y-4">
+                 {/* Mock UI Item 1 */}
+                 <div className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/5">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-white font-bold text-xs">MON</div>
+                    <div className="flex-1">
+                        <div className="h-2 w-24 bg-white/40 rounded-full mb-2"></div>
+                        <div className="h-2 w-16 bg-white/20 rounded-full"></div>
+                    </div>
+                    <div className="h-6 w-6 rounded-full border-2 border-[#FFB81C] bg-[#FFB81C] flex items-center justify-center">
+                        <div className="w-2 h-2 bg-[#002a85] rounded-full"></div>
+                    </div>
+                 </div>
+                 {/* Mock UI Item 2 */}
+                 <div className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/5">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-white font-bold text-xs">TUE</div>
+                    <div className="flex-1">
+                        <div className="h-2 w-32 bg-white/40 rounded-full mb-2"></div>
+                        <div className="h-2 w-20 bg-white/20 rounded-full"></div>
+                    </div>
+                    <div className="h-6 w-6 rounded-full border-2 border-white/30"></div>
+                 </div>
+                 {/* Mock UI Item 3 */}
+                 <div className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/5 opacity-50">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-white font-bold text-xs">WED</div>
+                    <div className="flex-1">
+                        <div className="h-2 w-20 bg-white/40 rounded-full mb-2"></div>
+                        <div className="h-2 w-12 bg-white/20 rounded-full"></div>
+                    </div>
+                    <div className="h-6 w-6 rounded-full border-2 border-white/30"></div>
+                 </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-white/10 text-center">
+                 <p className="text-xs text-blue-200 tracking-widest uppercase font-semibold">100% Subsidized by Welfare</p>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* --- FOOTER --- */}
       <footer className="bg-slate-900 text-white border-t border-slate-800 pt-16 pb-8">
@@ -333,7 +493,12 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
                <div className="flex items-center gap-2 mb-4">
-                 <div className="w-8 h-8 bg-[#0090BF] rounded flex items-center justify-center font-bold text-white">R</div>
+                  <Image
+                     src="/rb.png"
+                     alt="RepublicLunch Logo"
+                     width={40}
+                     height={40}
+                   />
                  <span className="font-bold text-xl">Republic<span className="text-[#0090BF]">Lunch</span></span>
                </div>
                <p className="text-slate-400 max-w-sm leading-relaxed">
