@@ -1,228 +1,378 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Utensils, Calendar, CheckCircle2, User, Menu, ChevronRight, AlertCircle } from 'lucide-react';
+import { 
+  Utensils, 
+  Calendar, 
+  CheckCircle2, 
+  Clock, 
+  ShieldCheck, 
+  ChevronRight, 
+  ArrowRight,
+  Smartphone,
+  ClipboardList,
+  HelpCircle,
+  Plus
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const LandingPage = () => {
-  const [activeDay, setActiveDay] = useState('Monday');
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+export default function LandingPage() {
+  // Simple state for FAQ accordion
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-[#0090BF] selection:text-white">
       
       {/* --- NAVIGATION --- */}
-      <nav className="fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            {/* Logo Area */}
-            <div className="flex items-center gap-3">
-              <div className="bg-[#0090BF] p-2 rounded-lg shadow-md">
-                <Utensils className="w-6 h-6 text-white" />
+            {/* Brand */}
+            <div className="flex items-center gap-3 group cursor-pointer">
+              <div className="relative">
+                 {/* Placeholder for Logo */}
+                 <div className="w-10 h-10 bg-[#0090BF] rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-900/10">
+                   R
+                 </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-[#0090BF] tracking-tight">Republic<span className="text-[#FFB81C]">Lunch</span></h1>
-                <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Staff Welfare Portal</p>
-              </div>
-            </div>
-
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#weekly-menu" className="text-gray-600 hover:text-[#0090BF] font-medium transition">Weekly Menu</a>
-              <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
-                <div className="text-right hidden lg:block">
-                  <p className="text-sm font-bold text-[#0090BF]">Welcome, Staff Member</p>
-                  <p className="text-xs text-green-600">Quota Available</p>
-                </div>
-                <div className="bg-gray-100 p-2 rounded-full">
-                  <User className="w-5 h-5 text-gray-600" />
-                </div>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#0090BF] transition">
+                  Republic<span className="text-[#0090BF]">Lunch</span>
+                </h1>
+                <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase mt-0.5">Staff Welfare Portal</span>
               </div>
             </div>
 
-            {/* Mobile Menu Icon */}
-            <div className="md:hidden">
-              <Menu className="w-8 h-8 text-[#0090BF]" />
+            {/* Desktop Links */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">How it Works</a>
+              <a href="#menu-preview" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">This Week's Menu</a>
+              <a href="#faq" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">FAQ</a>
+            </div>
+
+            {/* CTA */}
+            <div className="flex items-center gap-4">
+              <Link href="/login" className="hidden md:flex items-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg shadow-blue-900/10 hover:shadow-blue-900/20 hover:-translate-y-0.5">
+                Staff Login <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* --- HERO SECTION --- */}
-      <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-24 overflow-hidden">
-        {/* Background shapes */}
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50 to-white -z-10"></div>
-        <div className="absolute right-0 top-20 w-1/3 h-full bg-[#E6EFFC] rounded-l-full opacity-50 -z-10"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      {/* --- HERO SECTION (Corporate Style) --- */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-50">
+        {/* Subtle Grid Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/50 border border-blue-200 text-[#0090BF] text-xs font-bold uppercase tracking-wide mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0090BF]"></span>
+              </span>
+              Official Internal Tool
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.1]">
+              Fueling the <br className="hidden md:block" />
+              <span className="text-[#0090BF]">Republic Workforce.</span>
+            </h1>
+            <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+              Skip the queues and uncertainty. Select your subsidized meals for the entire week 
+              in under 2 minutes. Designed exclusively for Republic Bank staff.
+            </p>
             
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E3F2FD] text-[#0090BF] rounded-full text-sm font-bold">
-                <CheckCircle2 className="w-4 h-4" />
-                Lunch is on us today
-              </div>
-              <h1 className="text-5xl lg:text-6xl font-extrabold text-[#0090BF] leading-tight">
-                Fueling Your Day,<br/>
-                <span className="text-[#FFB81C]">The Republic Way.</span>
-              </h1>
-              <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-                A streamlined lunch reservation system for Republic Bank staff. 
-                Select your meals for the week effortlessly. No payments, no hassle.
-              </p>
-              
-              <div className="pt-4">
-                <a href="#weekly-menu" className="inline-flex bg-[#0090BF] text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-[#002a85] hover:shadow-blue-200/50 transition items-center gap-2">
-                  Reserve Your Lunch <ChevronRight className="w-5 h-5" />
-                </a>
-              </div>
-              
-              <div className="pt-6 border-t border-gray-200 mt-6">
-                <p className="text-sm text-gray-500 font-medium">Developed internally to enhance staff welfare.</p>
-              </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-xl shadow-blue-900/10">
+                Access Dashboard
+              </Link>
+              <a href="#how-it-works" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-bold text-lg transition">
+                View Menu Rotation
+              </a>
             </div>
+          </div>
 
-            {/* Hero Image */}
-            <div className="relative">
-              <img 
-                src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-                alt="Healthy Lunch" 
-                className="rounded-3xl shadow-2xl border-8 border-white w-full object-cover h-[400px]"
-              />
-              {/* Floating Badge */}
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 max-w-xs hidden sm:block">
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-100 p-2 rounded-full">
-                    <CheckCircle2 className="w-6 h-6 text-green-600" />
+          {/* Hero Visual - Dashboard Preview */}
+          <div className="relative mx-auto max-w-5xl">
+            <div className="rounded-2xl bg-white p-2 shadow-2xl border border-slate-200/60">
+               <div className="rounded-xl overflow-hidden bg-slate-100 relative aspect-[16/9] md:aspect-[21/9]">
+                  {/* Abstract Representation of the App Interface */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=2000" 
+                    alt="Food Spread" 
+                    className="w-full h-full object-cover opacity-90"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-8">
+                     <div className="text-white">
+                        <p className="font-bold text-lg">Weekly Menu: Week 42</p>
+                        <p className="text-slate-300 text-sm">Featuring: Jollof Special, Banku & Tilapia</p>
+                     </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-slate-800">100% Subsidized</h4>
-                    <p className="text-xs text-gray-500">Costs absorbed by Human Resources/Welfare Dept.</p>
-                  </div>
-                </div>
-              </div>
+               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* --- WEEKLY MENU SELECTOR --- */}
-      <section id="weekly-menu" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#0090BF]">This Week's Rotation</h2>
-            <p className="text-gray-600 mt-2">Select a day to reserve your preferred meal option.</p>
-          </div>
-
-          {/* Day Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
-            {days.map((day) => (
-              <button
-                key={day}
-                onClick={() => setActiveDay(day)}
-                className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
-                  activeDay === day 
-                    ? 'bg-[#0090BF] text-white shadow-lg scale-105' 
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                {day}
-              </button>
+      {/* --- STATS / TRUST BAR --- */}
+      <div className="border-y border-slate-100 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { label: "Active Users", value: "500+", icon: <CheckCircle2 className="w-5 h-5 text-[#FFB81C]" /> },
+              { label: "Subsidized Cost", value: "100%", icon: <ShieldCheck className="w-5 h-5 text-[#FFB81C]" /> },
+              { label: "Daily Orders", value: "350+", icon: <Utensils className="w-5 h-5 text-[#FFB81C]" /> },
+              { label: "Waste Reduction", value: "98%", icon: <Clock className="w-5 h-5 text-[#FFB81C]" /> },
+            ].map((stat, idx) => (
+              <div key={idx} className="flex flex-col items-center justify-center text-center space-y-2">
+                <div className="flex items-center gap-2 text-slate-900 font-extrabold text-3xl">
+                  {stat.value}
+                </div>
+                <div className="flex items-center gap-1.5 text-slate-500 text-sm font-medium">
+                  {stat.icon}
+                  {stat.label}
+                </div>
+              </div>
             ))}
           </div>
+        </div>
+      </div>
 
-          {/* Menu Cards Grid */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Option 1: Local */}
-            <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 group ring-1 ring-gray-100">
-              <div className="h-56 overflow-hidden relative">
-                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-[#0090BF] text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm">
-                  Option A
-                </div>
-                <img src="https://images.unsplash.com/photo-1594970921223-289524022bf8?auto=format&fit=crop&q=80&w=800" alt="Jollof" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-slate-800">Republic Jollof Special</h3>
-                </div>
-                <p className="text-gray-500 text-sm mb-6">Served with grilled chicken, coleslaw, and fried plantain.</p>
-                
-                <button className="w-full py-3 bg-gray-50 hover:bg-[#0090BF] text-[#0090BF] hover:text-white rounded-xl font-bold transition border border-[#0090BF]">
-                  Reserve for {activeDay}
-                </button>
-              </div>
+      {/* --- FEATURES (The Standard Z-Layout) --- */}
+      <section id="how-it-works" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
+          
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto">
+             <h2 className="text-3xl font-bold text-slate-900">Designed for Banking Professionals</h2>
+             <p className="text-slate-500 mt-4 text-lg">We've optimized the process to respect your time and ensure you get exactly what you want.</p>
+          </div>
+
+          {/* Block 1 */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-blue-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <img
+                src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80"
+                alt="Planning"
+                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
+              />
             </div>
-
-            {/* Option 2: Continental */}
-            <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 group ring-1 ring-gray-100">
-              <div className="h-56 overflow-hidden relative">
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-[#0090BF] text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm">
-                  Option B
-                </div>
-                <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800" alt="Salad" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-[#0090BF] text-xs font-bold uppercase tracking-wider rounded-md">
+                <ClipboardList className="w-4 h-4" />
+                Efficiency
               </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-slate-800">Grilled Chicken Salad</h3>
-                </div>
-                <p className="text-gray-500 text-sm mb-6">Fresh garden salad with vinaigrette dressing and croutons.</p>
-                
-                <button className="w-full py-3 bg-gray-50 hover:bg-[#0090BF] text-[#0090BF] hover:text-white rounded-xl font-bold transition border border-[#0090BF]">
-                  Reserve for {activeDay}
-                </button>
-              </div>
-            </div>
-
-            {/* Option 3: Local 2 */}
-            <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 group ring-1 ring-gray-100">
-              <div className="h-56 overflow-hidden relative">
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-[#0090BF] text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm">
-                  Option C
-                </div>
-                <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800" alt="Banku" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-slate-800">Banku & Tilapia</h3>
-                </div>
-                <p className="text-gray-500 text-sm mb-6">With hot pepper and diced onions. A friday favorite.</p>
-                
-                <button className="w-full py-3 bg-gray-50 hover:bg-[#0090BF] text-[#0090BF] hover:text-white rounded-xl font-bold transition border border-[#0090BF]">
-                  Reserve for {activeDay}
-                </button>
-              </div>
+              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
+                Plan Your Week.<br />
+                <span className="text-slate-900">Eliminate the Queue.</span>
+              </h3>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                RepublicLunch allows staff to view the complete weekly menu in advance. 
+                Make meal selections for all working days at once to remove daily uncertainty.
+              </p>
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500 bg-blue-50 py-3 px-6 rounded-full w-fit mx-auto">
-             <AlertCircle className="w-4 h-4 text-[#0090BF]" />
-             <span>Orders for the week close on <strong>Monday at 10:00 AM</strong>.</span>
+          {/* Block 2 (Reverse) */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6 order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider rounded-md">
+                <Clock className="w-4 h-4" />
+                Flexibility
+              </div>
+              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
+                Plans Changed?<br />
+                <span className="text-slate-900">Adjust on the Fly.</span>
+              </h3>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                Banking schedules are dynamic. Meal selections can be modified 
+                before <strong className="text-slate-900 bg-orange-100 px-1 rounded">9:00 AM</strong> on the day of service, giving you flexibility while allowing the kitchen to plan.
+              </p>
+            </div>
+            <div className="relative group order-1 lg:order-2">
+              <div className="absolute -inset-4 bg-orange-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <img
+                src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80"
+                alt="Flexibility"
+                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
+              />
+            </div>
           </div>
 
+           {/* Block 3 */}
+           <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-blue-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <img
+                src="https://images.unsplash.com/photo-1512428559087-560fa5ce7d02?auto=format&fit=crop&w=1200&q=80"
+                alt="Mobile"
+                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
+              />
+            </div>
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-[#0090BF] text-xs font-bold uppercase tracking-wider rounded-md">
+                <Smartphone className="w-4 h-4" />
+                Accessibility
+              </div>
+              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
+                From Your Desk<br />
+                <span className="text-slate-900">Or On The Go.</span>
+              </h3>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                Whether you are at your workstation at the Ebankese Head Office or on mobile while 
+                commuting to a branch, RepublicLunch is optimized for speed and clarity.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* --- FOOTER / CREDIT --- */}
-      <footer className="bg-[#0090BF] text-white py-12 border-t border-blue-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">Republic<span className="text-[#FFB81C]">Lunch</span></h2>
-            <p className="text-blue-200 text-sm mt-1">Staff Welfare Initiative.</p>
+      {/* --- MENU SNEAK PEEK (Visual Only) --- */}
+      <section id="menu-preview" className="py-24 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+              <div>
+                <span className="text-[#FFB81C] font-bold tracking-wider text-sm uppercase">Weekly Rotation</span>
+                <h2 className="text-3xl font-bold text-slate-900 mt-2">What's Cooking This Week?</h2>
+              </div>
+              <Link href="/login" className="text-[#0090BF] font-bold hover:underline flex items-center gap-2">
+                 Log in to reserve your plate <ArrowRight className="w-4 h-4"/>
+              </Link>
+           </div>
+
+           <div className="grid md:grid-cols-3 gap-8">
+             {/* Card 1 */}
+             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
+               <div className="h-56 overflow-hidden relative">
+                 <div className="absolute top-4 left-4 bg-[#FFB81C] text-white text-xs font-bold px-3 py-1 rounded-full z-10">MONDAY SPECIAL</div>
+                 <img src="https://images.unsplash.com/photo-1594970921223-289524022bf8?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Jollof" />
+               </div>
+               <div className="p-6">
+                 <h3 className="text-lg font-bold text-slate-900">Republic Jollof</h3>
+                 <p className="text-slate-500 text-sm mt-1">With grilled chicken & plantain.</p>
+               </div>
+             </div>
+
+             {/* Card 2 */}
+             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
+               <div className="h-56 overflow-hidden relative">
+                 <div className="absolute top-4 left-4 bg-[#0090BF] text-white text-xs font-bold px-3 py-1 rounded-full z-10">HEALTHY CHOICE</div>
+                 <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Salad" />
+               </div>
+               <div className="p-6">
+                 <h3 className="text-lg font-bold text-slate-900">Grilled Chicken Salad</h3>
+                 <p className="text-slate-500 text-sm mt-1">Fresh garden greens & vinaigrette.</p>
+               </div>
+             </div>
+
+             {/* Card 3 */}
+             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
+               <div className="h-56 overflow-hidden relative">
+                 <div className="absolute top-4 left-4 bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full z-10">FRIDAY FAVORITE</div>
+                 <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Banku" />
+               </div>
+               <div className="p-6">
+                 <h3 className="text-lg font-bold text-slate-900">Banku & Tilapia</h3>
+                 <p className="text-slate-500 text-sm mt-1">Served with hot pepper & onions.</p>
+               </div>
+             </div>
+           </div>
+        </div>
+      </section>
+
+      {/* --- FAQ SECTION --- */}
+      <section id="faq" className="py-24 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+           <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">Frequently Asked Questions</h2>
+           
+           <div className="space-y-4">
+             {[
+               { q: "Is the food really free?", a: "Yes. The Republic Bank Welfare Department subsidizes 100% of the cost for one meal per staff member per working day." },
+               { q: "What happens if I miss the 9:00 AM cutoff?", a: "To ensure our kitchen partners have accurate numbers and reduce waste, orders lock at 9:00 AM sharp. You will not be able to place or change an order after this time." },
+               { q: "Can I order for the whole week at once?", a: "Absolutely. In fact, we encourage it. The menu for the upcoming week is released every Sunday evening." },
+               { q: "I have a food allergy. Where can I see ingredients?", a: "Clicking on any menu item in the dashboard reveals a detailed description including common allergens." }
+             ].map((item, idx) => (
+               <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden">
+                 <button 
+                   onClick={() => toggleFaq(idx)}
+                   className="w-full flex justify-between items-center p-5 text-left bg-slate-50 hover:bg-slate-100 transition"
+                 >
+                   <span className="font-bold text-slate-800">{item.q}</span>
+                   <Plus className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-45' : ''}`} />
+                 </button>
+                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 p-5 pt-0' : 'max-h-0'}`}>
+                   <p className="text-slate-600 mt-4 leading-relaxed">{item.a}</p>
+                 </div>
+               </div>
+             ))}
+           </div>
+        </div>
+      </section>
+
+      {/* --- CTA BANNER --- */}
+      <section className="bg-[#0090BF] py-20">
+        <div className="max-w-4xl mx-auto text-center px-4">
+           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to plan your lunch?</h2>
+           <p className="text-blue-100 mb-8 text-lg">Join your colleagues and enjoy fresh, high-quality meals every day.</p>
+           <Link href="/login" className="inline-flex items-center gap-2 bg-white text-[#0090BF] px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition shadow-xl">
+              Log in with Staff ID
+           </Link>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-slate-900 text-white border-t border-slate-800 pt-16 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2">
+               <div className="flex items-center gap-2 mb-4">
+                 <div className="w-8 h-8 bg-[#0090BF] rounded flex items-center justify-center font-bold text-white">R</div>
+                 <span className="font-bold text-xl">Republic<span className="text-[#0090BF]">Lunch</span></span>
+               </div>
+               <p className="text-slate-400 max-w-sm leading-relaxed">
+                 The official staff welfare application for Republic Bank Ghana. 
+                 Dedicated to nourishing the people who serve our nation.
+               </p>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li><a href="#" className="hover:text-[#0090BF]">Weekly Menu</a></li>
+                <li><a href="#" className="hover:text-[#0090BF]">Welfare Policy</a></li>
+                <li><a href="#" className="hover:text-[#0090BF]">Report Issue</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-4">Internal Support</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li className="flex items-center gap-2"><HelpCircle className="w-4 h-4"/> Help Desk Ext: 4050</li>
+                <li>support@republic.gh</li>
+              </ul>
+            </div>
           </div>
-          
-          <div className="text-center md:text-right">
-            <p className="text-sm text-blue-200">
-              Developed & Maintained by <span className="text-white font-bold">Sophian Abdul Rahman</span>
+
+          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 text-sm">
+              &copy; {new Date().getFullYear()} Republic Bank Ghana. All rights reserved.
             </p>
-            <p className="text-xs text-blue-300 mt-1 opacity-75">
-               IT Department • National Service Personnel
-            </p>
+            <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+               <span>Developed by</span>
+               <span className="text-white font-bold">Sophian Abdul Rahman</span>
+               <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
+               <span>NSS IT Dept</span>
+            </div>
           </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default LandingPage;
+}

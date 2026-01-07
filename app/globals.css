@@ -119,6 +119,10 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+.republic-primary{
+  @apply bg-[#0090BF]
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
