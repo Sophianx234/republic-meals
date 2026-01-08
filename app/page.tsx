@@ -40,7 +40,7 @@ export default function LandingPage() {
                  {/* Placeholder for Logo */}
                  
                    <Image
-                     src="/republic-bank.jpg"
+                     src="/rb.png"
                      alt="RepublicLunch Logo"
                      width={40}
                      height={40}
