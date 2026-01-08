@@ -5,6 +5,7 @@ if (!process.env.MONGODB_URI) {
 }
 
 const uri = process.env.MONGODB_URI
+
 let cachedClient: MongoClient | null = null
 let cachedDb: Db | null = null
 
@@ -26,4 +27,12 @@ export async function connectToDatabase() {
 export async function getDatabase() {
   const { db } = await connectToDatabase()
   return db
+}
+
+/**
+ * 👇 ADD THIS (for better-auth)
+ */
+export async function getMongoClient() {
+  const { client } = await connectToDatabase()
+  return client
 }

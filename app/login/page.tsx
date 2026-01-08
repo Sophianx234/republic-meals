@@ -17,5 +17,5 @@ export default async function LoginPage() {
     redirect("/dashboard")
   }
 
-  return <div></div>
+  return <div>boruto </div>
 }
