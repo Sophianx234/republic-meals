@@ -1,9 +1,8 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { SessionProvider } from "next-auth/react"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+// import { SessionProvider } from "next-auth/react"
+// import { getServerSession } from "next-auth"
 import "./globals.css"
 
 const geist = Geist({ subsets: ["latin"] })
@@ -42,7 +41,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const session = await getServerSession(authOptions)
 
   return (
     <html lang="en" suppressHydrationWarning>
