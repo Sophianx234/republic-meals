@@ -1,33 +1,12 @@
-import { betterAuth } from "better-auth"
-import { mongodbAdapter } from "better-auth/adapters/mongodb"
-import { getMongoClient } from "./db"
+import { betterAuth } from "better-auth";
+import { MongoClient } from "mongodb";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+
+const client = new MongoClient("mongodb://localhost:27017/republic-meals");
+const db = client.db();
 
 export const auth = betterAuth({
-  database: mongodbAdapter({
-    client: getMongoClient(),
-    databaseName: "meal_ordering",
+  database: mongodbAdapter(db, {
+    client
   }),
-
-  session: {
-    strategy: "database",
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
-  },
-
-  security: {
-    password: {
-      hashing: "bcrypt",
-      saltRounds: 12,
-    },
-  },
-
-  callbacks: {
-    async session({ session, user }) {
-      session.user.id = user.id
-      return session
-    },
-  },
-})
-
-export type Session = typeof auth.$Infer.Session
-export type User = typeof auth.$Infer.User
+});
