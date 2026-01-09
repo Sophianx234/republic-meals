@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { auth, authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { headers } from "next/headers"
 
 export const metadata: Metadata = {
   title: "Dashboard | Staff Meal Ordering",
@@ -11,8 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
-
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     redirect("/login")
   }
