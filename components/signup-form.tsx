@@ -16,6 +16,10 @@ import Link from "next/link";
 import { signupAction } from "@/app/actions/auth";
 import { useState } from "react";
 import { SignupInput, signupSchema } from "@/lib/validation";
+import { Mirage } from 'ldrs/react'
+import 'ldrs/react/Mirage.css'
+
+// Default values shown
 
 export function SignupForm({
   className,
@@ -140,8 +144,12 @@ export function SignupForm({
         </Field>
 
         <Field>
-          <Button disabled={loading} type="submit">
-            {loading ? "Creating account..." : "Create Account"}
+          <Button disabled={loading} type="submit" className="relative">
+            {!loading ?
+             <RiseLoader
+  speed="2.5"
+  color="white" 
+/> : "Create Account"}
           </Button>
         </Field>
 
