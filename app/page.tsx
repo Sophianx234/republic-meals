@@ -40,7 +40,7 @@ export default function LandingPage() {
                  {/* Placeholder for Logo */}
                  
                    <Image
-                     src="/rb.png"
+                     src="/images/rb.png"
                      alt="RepublicLunch Logo"
                      width={40}
                      height={40}
@@ -306,7 +306,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0090BF]/80 to-transparent z-10 opacity-60"></div>
               
               <img 
-                src="/happy-2.jpg" 
+                src="/images/happy-2.jpg" 
                 alt="Fresh Ingredients" 
                 className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105"
               />
@@ -494,7 +494,7 @@ export default function LandingPage() {
             <div className="col-span-1 md:col-span-2">
                <div className="flex items-center gap-2 mb-4">
                   <Image
-                     src="/rb.png"
+                     src="/images/rb.png"
                      alt="RepublicLunch Logo"
                      width={40}
                      height={40}

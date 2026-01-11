@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { RiseLoader } from "react-spinners"
 import {
   Field,
   FieldDescription,
@@ -145,10 +146,11 @@ export function SignupForm({
 
         <Field>
           <Button disabled={loading} type="submit" className="relative">
-            {!loading ?
+            {loading ?
              <RiseLoader
-  speed="2.5"
-  color="white" 
+             size={6}
+             color="white"
+  
 /> : "Create Account"}
           </Button>
         </Field>
