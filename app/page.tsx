@@ -499,7 +499,7 @@ export default function LandingPage() {
                      width={40}
                      height={40}
                    />
-                 <span className="font-bold text-xl">Republic<span className="text-[#0090BF]">Lunch</span></span>
+                 <Link href='/' className="font-bold text-xl">Republic<span className="text-[#0090BF]">Lunch</span></Link>
                </div>
                <p className="text-slate-400 max-w-sm leading-relaxed">
                  The official staff welfare application for Republic Bank Ghana. 
