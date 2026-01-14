@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
+
 import { 
   Utensils, 
   Calendar, 
@@ -18,10 +21,13 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import DropdownMenu from '@/components/drop-down-menu';
 
 export default function LandingPage() {
   // Simple state for FAQ accordion
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -31,6 +37,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-[#0090BF] selection:text-white">
       
       {/* --- NAVIGATION --- */}
+      <DropdownMenu mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
@@ -63,11 +70,26 @@ export default function LandingPage() {
             </div>
 
             {/* CTA */}
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="hidden md:flex items-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg shadow-blue-900/10 hover:shadow-blue-900/20 hover:-translate-y-0.5">
-                Staff Login <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            {/* CTA + Mobile Menu Button */}
+<div className="flex items-center gap-3">
+  {/* Desktop CTA */}
+  <Link
+    href="/login"
+    className="hidden md:flex items-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg"
+  >
+    Staff Login <ArrowRight className="w-4 h-4" />
+  </Link>
+
+  {/* Mobile Menu Button */}
+  <button
+    onClick={() => setMobileMenuOpen((prev) => !prev)}
+    className="md:hidden inline-flex items-center justify-center rounded-lg border border-slate-200 p-2 text-slate-700 hover:bg-slate-100 transition"
+    aria-label="Toggle menu"
+  >
+    {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+  </button>
+</div>
+
           </div>
         </div>
       </nav>
