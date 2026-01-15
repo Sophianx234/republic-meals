@@ -1,27 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useState } from 'react';
 
-import { 
-  Utensils, 
-  Calendar, 
-  CheckCircle2, 
-  Clock, 
-  ShieldCheck, 
-  ChevronRight, 
+import DropdownMenu from '@/components/drop-down-menu';
+import {
   ArrowRight,
-  Smartphone,
+  CheckCircle2,
+  ChefHat,
   ClipboardList,
+  Clock,
   HelpCircle,
   Plus,
-  UtensilsCrossed,
-  ChefHat
+  ShieldCheck,
+  Smartphone,
+  Utensils,
+  UtensilsCrossed
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import DropdownMenu from '@/components/drop-down-menu';
 
 export default function LandingPage() {
   // Simple state for FAQ accordion
