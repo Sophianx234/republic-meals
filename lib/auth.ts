@@ -10,6 +10,23 @@ export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client,
   }),
+  user: {
+    additionalFields: {
+      staffID: {
+        type: "string",
+        required: false, // Set to true if required on signup
+        input: false,    // false = users can't set this themselves (API/Admin only)
+      },
+      department: {
+        type: "string",
+        required: false,
+      },
+      role: {
+        type: "string",
+        defaultValue: "staff",
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },

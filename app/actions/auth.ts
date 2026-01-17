@@ -40,6 +40,7 @@ export async function signupAction(formData: FormData) {
   const data = signupSchema.parse(rawData);
   const response = await auth.api.signUpEmail({
     body: { email: data.email, password: data.password, name: data.name },
+    
   })
 
   if(!response) {

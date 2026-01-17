@@ -1,4 +1,4 @@
-'use client'
+
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -14,8 +14,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { auth } from "@/lib/auth"
 
-export default function Page() {
+export default async function Page() {
+  
   return (
     <SidebarProvider>
       <AppSidebar />
