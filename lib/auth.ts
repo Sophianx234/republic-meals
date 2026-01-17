@@ -25,6 +25,11 @@ export const auth = betterAuth({
         type: "string",
         defaultValue: "staff",
       },
+      profileColor: {
+        type: "string",
+        required: false,
+        defaultValue: null 
+      }
     },
   },
   emailAndPassword: {
