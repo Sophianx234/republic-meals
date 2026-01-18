@@ -326,7 +326,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
 
         <div className="absolute inset-0 overflow-auto">
             <table className="w-full text-sm text-left border-collapse">
-                <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 z-20 shadow-sm">
+                <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 z-20 ">
                     <tr>
                         <th className="p-4 sticky left-0 z-20 bg-gray-50 border-b min-w-[200px] md:min-w-[250px] shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
                             Dish Details
