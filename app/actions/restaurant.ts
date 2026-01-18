@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 import { connectToDatabase } from "@/lib/mongodb"
-import { Food} from "@/models/food"
+import { Food } from "@/models/food"
 import { Menu } from "@/models/menu"
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
@@ -99,7 +99,6 @@ export async function publishWeeklySchedule(schedule: DailySchedule[]) {
       
       const menuItems = foods.map(f => ({
         food: f._id,
-        price: f.price, // Snapshotting the price here!
         isSoldOut: false
       }))
 
@@ -265,5 +264,98 @@ export async function updateFoodItem(formData: FormData) {
   } catch (error) {
     console.error("Update error:", error)
     return { success: false, error: "Failed to update item" }
+  }
+}
+
+
+export async function getMenuHistory(from: string, to: string) {
+  try {
+    await connectToDatabase();
+
+    const menus = await Menu.find({
+      date: {
+        $gte: new Date(from),
+        $lte: new Date(to),
+      },
+    })
+    // FIX 1: Populate the nested path 'items.food'
+    .populate({
+      path: "items.food", 
+      model: Food,
+      select: "name category ", 
+    })
+    .sort({ date: -1 })
+    .lean();
+
+    const formattedData = menus.map((menu: any) => ({
+      date: menu.date.toISOString().split("T")[0],
+      
+      // FIX 2: Handle the nested structure during mapping
+      // The structure is now: item -> { food: { name, price... }, isSoldOut: boolean }
+      items: (menu.items || []).map((item: any) => {
+        // Safety check: ensure the food was actually populated (it might be null if deleted)
+        const foodDetails = item.food; 
+
+        if (!foodDetails) return null;
+
+        return {
+          _id: foodDetails._id.toString(),
+          name: foodDetails.name,
+          category: foodDetails.category,
+          price: foodDetails.price,
+          // Optional: You can pass isSoldOut back if you want to display it
+          // isSoldOut: item.isSoldOut 
+        };
+      }).filter((item: any) => item !== null), // Remove any nulls if food was missing
+    }));
+
+    return formattedData;
+
+  } catch (error) {
+    console.error("Failed to fetch menu history:", error);
+    return [];
+  }
+}
+
+export async function getWeeklySchedule(from: string, to: string) {
+  try {
+    await connectToDatabase();
+    
+    // Find menus within the date range
+    const menus = await Menu.find({
+      date: { $gte: new Date(from), $lte: new Date(to) }
+    }).lean();
+
+    // Transform into the format the Planner expects: { "YYYY-MM-DD": ["foodId1", "foodId2"] }
+    const scheduleMap: Record<string, string[]> = {};
+    
+    menus.forEach((menu: any) => {
+      const dateKey = menu.date.toISOString().split("T")[0];
+      // Extract just the Food IDs from the nested items structure
+      const foodIds = menu.items.map((item: any) => item.food.toString());
+      scheduleMap[dateKey] = foodIds;
+    });
+
+    return scheduleMap;
+  } catch (error) {
+    console.error("Failed to fetch weekly schedule:", error);
+    return {};
+  }
+}
+
+export async function clearWeeklySchedule(from: string, to: string) {
+  try {
+    await connectToDatabase();
+    
+    // Delete menus within the date range
+    await Menu.deleteMany({
+      date: { $gte: new Date(from), $lte: new Date(to) }
+    });
+
+    revalidatePath("/restaurant/menu");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to clear schedule:", error);
+    return { success: false, error: "Failed to delete schedule" };
   }
 }

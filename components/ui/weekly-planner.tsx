@@ -1,15 +1,42 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { format, addDays, startOfWeek } from "date-fns";
-import { Save, Loader2, Search, Filter, Check, CalendarDays, XCircle, Eye, UtensilsCrossed, Printer, LayoutGrid, List } from "lucide-react";
+import { 
+  Save, 
+  Loader2, 
+  Search, 
+  Filter, 
+  Check, 
+  CalendarDays, 
+  XCircle, 
+  Eye, 
+  UtensilsCrossed, 
+  Printer, 
+  LayoutGrid, 
+  List, 
+  ChevronLeft, 
+  ChevronRight, 
+  Trash2 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast, Toaster } from "sonner";
-import { publishWeeklySchedule } from "@/app/actions/restaurant";
+import { publishWeeklySchedule, getWeeklySchedule, clearWeeklySchedule } from "@/app/actions/restaurant";
 
 type FoodItem = { _id: string; name: string; category: string; price: number };
 
@@ -19,13 +46,23 @@ const getCategories = (foods: FoodItem[]) => {
 };
 
 export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
+  // --- STATE ---
   const [isPending, setIsPending] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isClearing, setIsClearing] = useState(false);
+  
+  // New state to track if we are updating or publishing fresh
+  const [hasExistingData, setHasExistingData] = useState(false); 
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   
+  // --- DATE NAVIGATION STATE ---
+  const [weekOffset, setWeekOffset] = useState(0);
+
   // --- PREVIEW STATE ---
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [previewDayIndex, setPreviewDayIndex] = useState(0); // 0 = Mon...
+  const [previewDayIndex, setPreviewDayIndex] = useState(0); 
   const [previewMode, setPreviewMode] = useState<"daily" | "weekly">("daily");
   
   // Print Ref
@@ -33,7 +70,11 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
 
   // --- DATE LOGIC ---
   const today = new Date();
-  const startDate = startOfWeek(today, { weekStartsOn: 1 }); 
+  
+  const startDate = useMemo(() => {
+    const currentStart = startOfWeek(today, { weekStartsOn: 1 });
+    return addDays(currentStart, weekOffset * 7);
+  }, [weekOffset]);
 
   const weekDays = useMemo(() => Array.from({ length: 5 }).map((_, i) => {
     const date = addDays(startDate, i);
@@ -43,10 +84,38 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
       sub: format(date, "MMM d"), 
       key: format(date, "yyyy-MM-dd"), 
     };
-  }), []);
+  }), [startDate]);
 
   // --- SCHEDULE STATE ---
   const [schedule, setSchedule] = useState<Record<string, string[]>>({});
+
+  // --- FETCH DATA ON WEEK CHANGE ---
+  useEffect(() => {
+    const fetchExistingSchedule = async () => {
+      setIsFetching(true);
+      try {
+        const from = weekDays[0].key;
+        const to = weekDays[4].key;
+        
+        // Server Action: Get existing IDs for this date range
+        const existingData = await getWeeklySchedule(from, to);
+        setSchedule(existingData);
+
+        // Check if there is any actual data in the response
+        const hasData = Object.values(existingData).some(ids => ids && ids.length > 0);
+        setHasExistingData(hasData);
+
+      } catch (error) {
+        toast.error("Could not load existing schedule");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchExistingSchedule();
+  }, [weekOffset, weekDays]);
+
+  // --- HANDLERS ---
 
   const toggleCell = (dateKey: string, foodId: string) => {
     setSchedule((prev) => {
@@ -75,11 +144,49 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
     });
   };
 
-  const clearAll = () => {
-    if(confirm("Are you sure you want to clear the entire schedule?")) {
-        setSchedule({});
+  const handleClearSchedule = async () => {
+    setIsClearing(true);
+    try {
+        const from = weekDays[0].key;
+        const to = weekDays[4].key;
+
+        // Server Action: Remove from DB
+        const result = await clearWeeklySchedule(from, to);
+        
+        if (result.success) {
+            setSchedule({}); // Clear local state
+            setHasExistingData(false); // Reset button to "Publish"
+            toast.success("Schedule cleared for this week.");
+        } else {
+            toast.error("Failed to clear schedule from database.");
+        }
+    } catch (error) {
+        toast.error("An error occurred.");
+    } finally {
+        setIsClearing(false);
     }
-  }
+  };
+
+  const handlePublish = async () => {
+    setIsPending(true);
+    const payload = Object.entries(schedule).map(([date, foodIds]) => ({
+      date: new Date(date),
+      foodIds,
+    }));
+
+    try {
+        const result = await publishWeeklySchedule(payload);
+        if (result.success) {
+          toast.success(hasExistingData ? "Schedule updated!" : "Schedule published!");
+          setHasExistingData(true); // After successful save, it is now existing data
+        } else {
+          toast.error("Failed to save.");
+        }
+    } catch (e) {
+        toast.error("Error occurred.");
+    }
+    setIsPending(false);
+  };
 
   // --- FILTERING ---
   const categories = useMemo(() => getCategories(allFoods), [allFoods]);
@@ -92,28 +199,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
     });
   }, [allFoods, searchTerm, selectedCategory]);
 
-  // --- SUBMISSION ---
-  const handlePublish = async () => {
-    setIsPending(true);
-    const payload = Object.entries(schedule).map(([date, foodIds]) => ({
-      date: new Date(date),
-      foodIds,
-    }));
-
-    try {
-        const result = await publishWeeklySchedule(payload);
-        if (result.success) {
-          toast.success("Schedule published!");
-        } else {
-          toast.error("Failed to save.");
-        }
-    } catch (e) {
-        toast.error("Error occurred.");
-    }
-    setIsPending(false);
-  };
-
-  // --- PREVIEW DATA HELPER ---
+  // --- HELPERS ---
   const getPreviewFoods = (dayKey: string) => {
     const ids = schedule[dayKey] || [];
     return allFoods.filter(f => ids.includes(f._id));
@@ -144,21 +230,60 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                     <CalendarDays className="w-5 h-5 text-black" />
                     Weekly Menu Planner
                 </h2>
-                <p className="text-sm text-gray-500 mt-1">
-                    Scheduling: <span className="font-medium text-gray-900">{weekDays[0].sub} - {weekDays[4].sub}</span>
-                </p>
+                
+                {/* Date Navigation */}
+                <div className="flex items-center gap-2 mt-2">
+                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => setWeekOffset(prev => prev - 1)} disabled={isFetching}>
+                        <ChevronLeft className="h-3 w-3" />
+                    </Button>
+                    <p className="text-sm text-gray-500 min-w-[130px] text-center">
+                        <span className="font-medium text-gray-900">
+                            {weekDays[0].sub} - {weekDays[4].sub}
+                        </span>
+                    </p>
+                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => setWeekOffset(prev => prev + 1)} disabled={isFetching}>
+                        <ChevronRight className="h-3 w-3" />
+                    </Button>
+                    {weekOffset !== 0 && (
+                         <Button variant="link" className="h-6 text-xs" onClick={() => setWeekOffset(0)}>
+                            Jump to This Week
+                         </Button>
+                    )}
+                </div>
             </div>
             
             <div className="flex items-center gap-3">
                 <Button variant="ghost" size="sm" onClick={() => setIsPreviewOpen(true)} className="text-black hover:bg-gray-100">
                     <Eye className="w-4 h-4 mr-2" /> Preview
                 </Button>
-                <Button variant="outline" size="sm" onClick={clearAll} className="text-gray-500 hover:text-red-600 hover:border-red-200">
-                    <XCircle className="w-4 h-4 mr-2" /> Clear
-                </Button>
-                <Button onClick={handlePublish} disabled={isPending} className="bg-black hover:bg-gray-800 text-white">
+
+                {/* SHADCN CONFIRMATION FOR CLEAR */}
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="text-gray-500 hover:text-red-600 hover:border-red-200">
+                            <XCircle className="w-4 h-4 mr-2" /> Clear View
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This will permanently delete the menu schedule for the current week ({weekDays[0].sub} - {weekDays[4].sub}) from the database. This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleClearSchedule} className="bg-red-600 hover:bg-red-700 text-white">
+                                {isClearing ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
+                                Yes, Delete Schedule
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                <Button onClick={handlePublish} disabled={isPending || isFetching} className="bg-black hover:bg-gray-800 text-white min-w-[160px]">
                     {isPending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                    Publish
+                    {hasExistingData ? "Update Schedule" : "Publish Schedule"}
                 </Button>
             </div>
         </div>
@@ -189,8 +314,16 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
       </div>
 
       {/* --- TABLE --- */}
-      {/* Changed: Removed fixed h-[600px] inside and used absolute inset-0 to fill the flex container properly */}
       <div className="flex-1 bg-white rounded-xl border shadow-sm relative min-h-[300px] overflow-hidden">
+        
+        {/* Loading Overlay */}
+        {isFetching && (
+            <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-[1px] flex flex-col items-center justify-center text-gray-500">
+                <Loader2 className="w-8 h-8 animate-spin mb-2 text-black" />
+                <p className="text-sm font-medium">Loading schedule...</p>
+            </div>
+        )}
+
         <div className="absolute inset-0 overflow-auto">
             <table className="w-full text-sm text-left border-collapse">
                 <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 z-20 shadow-sm">
@@ -224,7 +357,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                                             <span className="font-medium text-gray-900 truncate max-w-[180px]" title={food.name}>{food.name}</span>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-normal text-gray-500 bg-gray-100">{food.category}</Badge>
-                                                <span className="text-xs text-gray-400">GHS 123</span>
+                                                <span className="text-xs text-gray-400">GHS {food.price}</span>
                                             </div>
                                         </div>
                                     </td>
@@ -334,7 +467,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                                             </Badge>
                                         </div>
                                         <span className="font-semibold text-sm bg-gray-100 px-2 py-1 rounded text-gray-700">
-                                            GHS 123
+                                            GHS {food.price}
                                         </span>
                                     </div>
                                 ))}
@@ -379,7 +512,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                                             {dayFoods.map(food => (
                                                 <div key={food._id} className="flex justify-between items-baseline border-b border-dashed border-gray-200 pb-1">
                                                     <span className="font-medium">{food.name}</span>
-                                                    <span className="text-sm text-gray-600">GHS 123</span>
+                                                    <span className="text-sm text-gray-600">GHS {food.price}</span>
                                                 </div>
                                             ))}
                                         </div>
