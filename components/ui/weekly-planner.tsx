@@ -126,28 +126,18 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
   return (
     <div className="space-y-6 flex flex-col h-full max-h-[calc(100vh-100px)]">
       
-      {/* Print Styles: Hides everything except the printable area when printing */}
+      {/* Print Styles */}
       <style jsx global>{`
         @media print {
-          body * {
-            visibility: hidden;
-          }
-          #printable-area, #printable-area * {
-            visibility: visible;
-          }
-          #printable-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-          /* Hide scrollbars and UI elements */
+          body * { visibility: hidden; }
+          #printable-area, #printable-area * { visibility: visible; }
+          #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
           ::-webkit-scrollbar { display: none; }
         }
       `}</style>
 
       {/* --- HEADER --- */}
-      <div className="bg-white p-5 rounded-xl border shadow-sm space-y-4">
+      <div className="bg-white p-5 rounded-xl border shadow-sm space-y-4 flex-shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -199,12 +189,13 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
       </div>
 
       {/* --- TABLE --- */}
-      <div className="flex-1 overflow-hidden bg-white rounded-xl border shadow-sm relative">
-        <div className="overflow-auto h-[600px] w-full">
+      {/* Changed: Removed fixed h-[600px] inside and used absolute inset-0 to fill the flex container properly */}
+      <div className="flex-1 bg-white rounded-xl border shadow-sm relative min-h-[300px] overflow-hidden">
+        <div className="absolute inset-0 overflow-auto">
             <table className="w-full text-sm text-left border-collapse">
                 <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 z-20 shadow-sm">
                     <tr>
-                        <th className="p-4 sticky left-0 z-20 bg-gray-50 border-b min-w-[200px] md:min-w-[250px]">
+                        <th className="p-4 sticky left-0 z-20 bg-gray-50 border-b min-w-[200px] md:min-w-[250px] shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
                             Dish Details
                         </th>
                         {weekDays.map(day => (
@@ -228,7 +219,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                             const isAllSelected = weekDays.every(day => schedule[day.key]?.includes(food._id));
                             return (
                                 <tr key={food._id} className="hover:bg-gray-50 transition-colors group">
-                                    <td className="p-4 sticky left-0 bg-white group-hover:bg-gray-50 border-r border-gray-100 z-10">
+                                    <td className="p-4 sticky left-0 bg-white group-hover:bg-gray-50 border-r border-gray-100 z-10 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
                                         <div className="flex flex-col">
                                             <span className="font-medium text-gray-900 truncate max-w-[180px]" title={food.name}>{food.name}</span>
                                             <div className="flex items-center gap-2 mt-1">
@@ -280,7 +271,6 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                     </DialogHeader>
                 </div>
                 
-                {/* View Switcher */}
                 <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
                     <Button 
                         size="sm" 
@@ -312,8 +302,8 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                                 onClick={() => setPreviewDayIndex(index)}
                                 className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${
                                     previewDayIndex === index 
-                                        ? "bg-white shadow-sm ring-1 ring-black/5 font-semibold text-black border-l-4 border-black" 
-                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    ? "bg-white shadow-sm ring-1 ring-black/5 font-semibold text-black border-l-4 border-black" 
+                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                 }`}
                             >
                                 <span className="block">{day.fullLabel}</span>
@@ -397,7 +387,6 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                                 )
                             })}
                             
-                            {/* Empty State for Print */}
                             {Object.values(schedule).every(arr => arr.length === 0) && (
                                 <div className="text-center py-20 text-gray-400">
                                     <p>No menu items scheduled for this week.</p>
