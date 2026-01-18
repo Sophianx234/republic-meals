@@ -259,7 +259,7 @@ export async function updateFoodItem(formData: FormData) {
       images: finalImages
     })
     
-    revalidatePath("/restaurant/menu")
+    revalidatePath("/restaurant/")
     return { success: true }
 
   } catch (error) {
