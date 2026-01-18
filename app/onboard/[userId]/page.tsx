@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import ProfileImageUpload from "@/components/profile-image-upload"
 import { updateUserProfile } from "@/app/actions/auth"
 import { getInitials } from "@/lib/utils"
+import { Toaster } from "@/components/ui/sonner"
 
 
 export default function ProfileSetupPage() {
@@ -69,7 +70,7 @@ export default function ProfileSetupPage() {
           isLoading={isPending}
         />
       </div>
-      
+      <Toaster position="top-right" />
     </div>
   )
 }

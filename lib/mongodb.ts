@@ -1,29 +1,15 @@
-import { MongoClient, Db } from "mongodb";
+import mongoose from "mongoose";
+;
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/missing environment variable: "MONGODB_URI"');
-}
-
-const uri = process.env.MONGODB_URI;
-let cachedClient: MongoClient | null = null;
-let cachedDb: Db | null = null;
+const MONGODB_URI = process.env.MONGODB_URI?.replace('<password>', process.env.MONGODB_PASSWORD || '') as string;
+let clientPromise: Promise<typeof mongoose> | null = null;
 
 export async function connectToDatabase() {
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+  if (mongoose.connection.readyState >= 1) return mongoose;
+  if (!clientPromise) {
+    clientPromise = mongoose.connect(MONGODB_URI);
   }
-
-  const client = new MongoClient(uri);
-  await client.connect();
-  const db = client.db("meal_ordering");
-
-  cachedClient = client;
-  cachedDb = db;
-
-  return { client, db };
+  await clientPromise;
+  return mongoose;
 }
 
-export async function getDatabase() {
-  const { db } = await connectToDatabase();
-  return db;
-}

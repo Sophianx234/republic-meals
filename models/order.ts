@@ -1,69 +1,45 @@
-import { Schema, model, models, Types, Document } from "mongoose";
-
-export interface IOrderItem {
-  name: string;
-  price: number;
-  quantity: number;
-}
-
-export type OrderStatus = "pending" | "served" | "cancelled";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IOrder extends Document {
-  user: Types.ObjectId;
-  date: Date;
-  items: IOrderItem[];
+  user: mongoose.Types.ObjectId; // Link to Staff
+  date: Date;                    // The date the food is for
+  items: {
+    name: string;
+    price: number;
+    quantity: number;
+    note?: string;               // e.g., "No pepper"
+  }[];
   totalAmount: number;
-  status: OrderStatus;
-  servedBy?: string;
-  orderedAt: Date;
+  status: "pending" | "confirmed" | "ready" | "picked_up" | "cancelled";
+  pickupCode: string;            // A short 4-digit code for verification (optional)
 }
-
-
-const OrderItemSchema = new Schema<IOrderItem>(
-  {
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    quantity: { type: Number, default: 1 },
-  },
-  { _id: false }
-);
 
 const OrderSchema = new Schema<IOrder>(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    date: {
-      type: Date,
-      required: true, // date the food is for
-    },
-    items: {
-      type: [OrderItemSchema],
-      required: true,
-    },
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    date: { type: Date, required: true },
+    items: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number, required: true }, // Snapshot price
+        quantity: { type: Number, default: 1 },
+        note: String
+      }
+    ],
+    totalAmount: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["pending", "served", "cancelled"],
+      enum: ["pending", "confirmed", "ready", "picked_up", "cancelled"],
       default: "pending",
     },
-    servedBy: {
-      type: String,
-    },
-    orderedAt: {
-      type: Date,
-      default: Date.now,
-    },
+    pickupCode: { type: String },
   },
-  {
-    timestamps: false,
-  }
+  { timestamps: true }
 );
 
-export const Order =
-  models.Order || model<IOrder>("Order", OrderSchema);
+// Indexes for fast Admin Reporting
+OrderSchema.index({ date: 1 });        // "Show me orders for today"
+OrderSchema.index({ user: 1 });        // "Show me Sophian's history"
+OrderSchema.index({ status: 1 });      // "Show me active orders"
+
+export const Order: Model<IOrder> = mongoose.models?.Order || mongoose.model("Order", OrderSchema);

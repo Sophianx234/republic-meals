@@ -1,55 +1,26 @@
-
-
-import { Schema, model, models, Document } from "mongoose";
-
-export interface IMeal {
-  name: string;
-  price: number;
-  category?: "Main" | "Side" | "Drink";
-  image?: string;
-}
-
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IMenu extends Document {
   date: Date;
-  isLocked: boolean;
-  meals: IMeal[];
+  items: {
+    food: mongoose.Types.ObjectId;
+    isSoldOut: boolean;
+  }[];
 }
-
-const MealSchema = new Schema<IMeal>(
-  {
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    category: {
-      type: String,
-      enum: ["Main", "Side", "Drink"],
-    },
-    image: { type: String },
-  },
-  { _id: false } // prevents extra _id on subdocuments
-);
 
 const MenuSchema = new Schema<IMenu>(
   {
-    date: {
-      type: Date,
-      required: true,
-      unique: true, // only one menu per day
-    },
-    isLocked: {
-      type: Boolean,
-      default: false,
-    },
-    meals: {
-      type: [MealSchema],
-      required: true,
-    },
+    date: { type: Date, required: true, unique: true },
+    items: [
+      {
+        food: { type: Schema.Types.ObjectId, ref: "Food" },
+        isSoldOut: { type: Boolean, default: false },
+      },
+    ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-
-export const Menu =
-  models.Menu || model<IMenu>("Menu", MenuSchema);
+// Only export a singleton model (avoids Fast Refresh issues)
+export const Menu: Model<IMenu> =
+  mongoose.models.Menu || mongoose.model<IMenu>("Menu", MenuSchema);
