@@ -41,12 +41,12 @@ export default function ProfileSetupPage() {
 
       const result = await updateUserProfile(formData)
 
-      if (result.success) {
+      if (result?.success) {
+        console.log("Profile updated successfully")
         toast.success("Profile updated successfully!")
-        router.refresh()
         router.push("/dashboard")
       } else {
-        toast.error(result.error || "Something went wrong")
+        toast.error(result?.error || "Something went wrong")
         setIsPending(false) // Only stop loading if error. If success, keep loading while redirecting.
       }
     } catch (err) {
@@ -69,6 +69,7 @@ export default function ProfileSetupPage() {
           isLoading={isPending}
         />
       </div>
+      
     </div>
   )
 }

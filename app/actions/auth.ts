@@ -52,7 +52,7 @@ export async function signupAction(formData: FormData) {
     }
   }
 
-  redirect("/dashboard");
+  redirect(`/onboard/${response.user.id}?username=${rawData.name}`);
 }
 
 export async function signOutAction() {
@@ -112,7 +112,10 @@ export async function updateUserProfile(formData: FormData) {
     })
 
     // 3. Revalidate to update UI immediately
-    redirect("/dashboard") 
+    return {
+      success: true
+    }
+    
     
 
   } catch (error) {
