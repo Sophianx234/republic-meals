@@ -21,12 +21,12 @@ const OrderSchema = new Schema<IOrder>(
     items: [
       {
         name: { type: String, required: true },
-        price: { type: Number, required: true }, // Snapshot price
+        price: { type: Number, required: false }, // Snapshot price
         quantity: { type: Number, default: 1 },
         note: String
       }
     ],
-    totalAmount: { type: Number, required: true },
+    totalAmount: { type: Number, required: false },
     status: {
       type: String,
       enum: ["pending", "confirmed", "ready", "picked_up", "cancelled"],
