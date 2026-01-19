@@ -17,7 +17,8 @@ import {
   List, 
   ChevronLeft, 
   ChevronRight, 
-  Trash2 
+  Trash2,
+  Lock 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +52,6 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
   const [isFetching, setIsFetching] = useState(true);
   const [isClearing, setIsClearing] = useState(false);
   
-  // New state to track if we are updating or publishing fresh
   const [hasExistingData, setHasExistingData] = useState(false); 
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,26 +65,35 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
   const [previewDayIndex, setPreviewDayIndex] = useState(0); 
   const [previewMode, setPreviewMode] = useState<"daily" | "weekly">("daily");
   
-  // Print Ref
   const printRef = useRef<HTMLDivElement>(null);
 
-  // --- DATE LOGIC ---
-  const today = new Date();
+  // --- DATE LOGIC (FIXED) ---
+  // We use useState to ensure 'today' is only created ONCE on mount.
+  // This prevents the infinite loop caused by new Date() changing on every render.
+  const [today] = useState(() => new Date());
+  
+  // Memoize todayKey so it's stable
+  const todayKey = useMemo(() => format(today, "yyyy-MM-dd"), [today]); 
   
   const startDate = useMemo(() => {
     const currentStart = startOfWeek(today, { weekStartsOn: 1 });
     return addDays(currentStart, weekOffset * 7);
-  }, [weekOffset]);
+  }, [weekOffset, today]);
 
   const weekDays = useMemo(() => Array.from({ length: 5 }).map((_, i) => {
     const date = addDays(startDate, i);
+    const key = format(date, "yyyy-MM-dd");
     return {
       label: format(date, "EEE"), 
       fullLabel: format(date, "EEEE"), 
       sub: format(date, "MMM d"), 
-      key: format(date, "yyyy-MM-dd"), 
+      key: key, 
+      isPast: key < todayKey 
     };
-  }), [startDate]);
+  }), [startDate, todayKey]);
+
+  // Check if the ENTIRE week is in the past
+  const isWholeWeekPast = weekDays.every(d => d.isPast);
 
   // --- SCHEDULE STATE ---
   const [schedule, setSchedule] = useState<Record<string, string[]>>({});
@@ -101,7 +110,6 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
         const existingData = await getWeeklySchedule(from, to);
         setSchedule(existingData);
 
-        // Check if there is any actual data in the response
         const hasData = Object.values(existingData).some(ids => ids && ids.length > 0);
         setHasExistingData(hasData);
 
@@ -118,6 +126,11 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
   // --- HANDLERS ---
 
   const toggleCell = (dateKey: string, foodId: string) => {
+    if (dateKey < todayKey) {
+        toast.error("You cannot change the menu for past days.");
+        return;
+    }
+
     setSchedule((prev) => {
       const currentList = prev[dateKey] || [];
       const exists = currentList.includes(foodId);
@@ -129,10 +142,19 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
   };
 
   const toggleRowAllWeek = (foodId: string) => {
-    const isAllEnabled = weekDays.every(day => schedule[day.key]?.includes(foodId));
+    const editableDays = weekDays.filter(day => !day.isPast);
+
+    if (editableDays.length === 0) {
+        toast.error("This entire week is in the past.");
+        return;
+    }
+
+    const isAllEnabled = editableDays.every(day => schedule[day.key]?.includes(foodId));
+
     setSchedule(prev => {
       const next = { ...prev };
-      weekDays.forEach(day => {
+      
+      editableDays.forEach(day => {
         const currentList = next[day.key] || [];
         if (isAllEnabled) {
           next[day.key] = currentList.filter(id => id !== foodId);
@@ -150,15 +172,14 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
         const from = weekDays[0].key;
         const to = weekDays[4].key;
 
-        // Server Action: Remove from DB
         const result = await clearWeeklySchedule(from, to);
         
         if (result.success) {
-            setSchedule({}); // Clear local state
-            setHasExistingData(false); // Reset button to "Publish"
+            setSchedule({}); 
+            setHasExistingData(false);
             toast.success("Schedule cleared for this week.");
         } else {
-            toast.error("Failed to clear schedule from database.");
+            toast.error("Failed to clear schedule.");
         }
     } catch (error) {
         toast.error("An error occurred.");
@@ -178,7 +199,7 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
         const result = await publishWeeklySchedule(payload);
         if (result.success) {
           toast.success(hasExistingData ? "Schedule updated!" : "Schedule published!");
-          setHasExistingData(true); // After successful save, it is now existing data
+          setHasExistingData(true); 
         } else {
           toast.error("Failed to save.");
         }
@@ -260,7 +281,12 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                 {/* SHADCN CONFIRMATION FOR CLEAR */}
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-gray-500 hover:text-red-600 hover:border-red-200">
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-gray-500 hover:text-red-600 hover:border-red-200 disabled:opacity-50"
+                            disabled={isWholeWeekPast} 
+                        >
                             <XCircle className="w-4 h-4 mr-2" /> Clear View
                         </Button>
                     </AlertDialogTrigger>
@@ -281,9 +307,13 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                     </AlertDialogContent>
                 </AlertDialog>
 
-                <Button onClick={handlePublish} disabled={isPending || isFetching} className="bg-black hover:bg-gray-800 text-white min-w-[160px]">
+                <Button 
+                    onClick={handlePublish} 
+                    disabled={isPending || isFetching || isWholeWeekPast} 
+                    className="bg-black hover:bg-gray-800 text-white min-w-[160px]"
+                >
                     {isPending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                    {hasExistingData ? "Update Schedule" : "Publish Schedule"}
+                    {isWholeWeekPast ? "Past Schedule" : (hasExistingData ? "Update Schedule" : "Publish Schedule")}
                 </Button>
             </div>
         </div>
@@ -316,7 +346,6 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
       {/* --- TABLE --- */}
       <div className="flex-1 bg-white rounded-xl border shadow-sm relative min-h-[300px] overflow-hidden">
         
-        {/* Loading Overlay */}
         {isFetching && (
             <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-[1px] flex flex-col items-center justify-center text-gray-500">
                 <Loader2 className="w-8 h-8 animate-spin mb-2 text-black" />
@@ -326,16 +355,19 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
 
         <div className="absolute inset-0 overflow-auto">
             <table className="w-full text-sm text-left border-collapse">
-                <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 z-20 ">
+                <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 z-20 shadow-sm">
                     <tr>
                         <th className="p-4 sticky left-0 z-20 bg-gray-50 border-b min-w-[200px] md:min-w-[250px] shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
                             Dish Details
                         </th>
                         {weekDays.map(day => (
-                            <th key={day.key} className="p-3 border-b text-center min-w-[100px]">
+                            <th key={day.key} className={`p-3 border-b text-center min-w-[100px] ${day.isPast ? "bg-gray-100/80 text-gray-400" : ""}`}>
                                 <div className="flex flex-col items-center">
-                                    <span className="text-sm font-bold">{day.label}</span>
-                                    <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{day.sub}</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-sm font-bold">{day.label}</span>
+                                        {day.isPast && <Lock className="w-3 h-3 text-gray-400" />}
+                                    </div>
+                                    <span className="text-[10px] font-medium uppercase tracking-wider opacity-70">{day.sub}</span>
                                 </div>
                             </th>
                         ))}
@@ -349,7 +381,9 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                         <tr><td colSpan={7} className="p-8 text-center text-gray-500">No dishes found.</td></tr>
                     ) : (
                         filteredFoods.map((food) => {
-                            const isAllSelected = weekDays.every(day => schedule[day.key]?.includes(food._id));
+                            const editableDays = weekDays.filter(d => !d.isPast);
+                            const isAllSelected = editableDays.length > 0 && editableDays.every(day => schedule[day.key]?.includes(food._id));
+                            
                             return (
                                 <tr key={food._id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="p-4 sticky left-0 bg-white group-hover:bg-gray-50 border-r border-gray-100 z-10 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
@@ -363,19 +397,32 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
                                     </td>
                                     {weekDays.map(day => {
                                         const isSelected = schedule[day.key]?.includes(food._id);
+                                        const isLocked = day.isPast;
+
                                         return (
-                                            <td key={`${food._id}-${day.key}`} className="p-2 text-center border-r border-gray-50 last:border-0">
+                                            <td key={`${food._id}-${day.key}`} className={`p-2 text-center border-r border-gray-50 last:border-0 ${isLocked ? "bg-gray-100/50" : ""}`}>
                                                 <button
                                                     onClick={() => toggleCell(day.key, food._id)}
-                                                    className={`w-full h-12 rounded-lg flex items-center justify-center transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-black ${isSelected ? "bg-black border-black shadow-sm" : "bg-white border-gray-200 hover:border-gray-400 hover:bg-gray-50"}`}
+                                                    disabled={isLocked}
+                                                    className={`w-full h-12 rounded-lg flex items-center justify-center transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-black 
+                                                        ${isLocked 
+                                                            ? "bg-gray-100 border-transparent cursor-not-allowed opacity-50" 
+                                                            : isSelected 
+                                                                ? "bg-black border-black shadow-sm" 
+                                                                : "bg-white border-gray-200 hover:border-gray-400 hover:bg-gray-50"
+                                                        }`}
                                                 >
-                                                    {isSelected && <Check className="w-5 h-5 text-white animate-in zoom-in-50" />}
+                                                    {isSelected && <Check className={`w-5 h-5 ${isLocked ? "text-gray-400" : "text-white"} animate-in zoom-in-50`} />}
                                                 </button>
                                             </td>
                                         );
                                     })}
                                     <td className="p-2 text-center bg-gray-50/30">
-                                        <button onClick={() => toggleRowAllWeek(food._id)} className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto transition-colors ${isAllSelected ? "bg-gray-200 text-black" : "text-gray-300 hover:text-black hover:bg-gray-100"}`}>
+                                        <button 
+                                            onClick={() => toggleRowAllWeek(food._id)} 
+                                            disabled={isWholeWeekPast}
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto transition-colors ${isAllSelected ? "bg-gray-200 text-black" : "text-gray-300 hover:text-black hover:bg-gray-100"} ${isWholeWeekPast ? "opacity-30 cursor-not-allowed" : ""}`}
+                                        >
                                             <CalendarDays className="w-4 h-4" />
                                         </button>
                                     </td>
@@ -388,10 +435,11 @@ export function WeeklyPlanner({ allFoods }: { allFoods: FoodItem[] }) {
         </div>
       </div>
 
-      {/* --- PREVIEW MODAL --- */}
+      {/* ... (Preview Modal remains identical) ... */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-[800px] h-[90vh] flex flex-col p-0 overflow-hidden">
-            <div className="p-6 pb-2 border-b flex justify-between items-start">
+            {/* Same content as before */}
+             <div className="p-6 pb-2 border-b flex justify-between items-start">
                 <div>
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">

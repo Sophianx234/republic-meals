@@ -48,12 +48,12 @@ const NAV_ITEMS = {
   staff: [
     {
       title: "Lunch Menu",
-      url: "/dashboard",
+      url: "/staff",
       icon: UtensilsCrossed,
       isActive: true,
       items: [
-        { title: "Order Meal", url: "/dashboard" },
-        { title: "Weekly Schedule", url: "/dashboard/weekly" },
+        { title: "Order Meal", url: "/staff/launch-menu/meal" },
+        { title: "Weekly Schedule", url: "/staff/launch-menu/weekly-schedule" },
       ],
     },
     {
@@ -137,7 +137,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // 2. DETECT ROLE
   // Ensure your auth schema returns one of these strings
   // const role = session?.user?.role as "staff" | "admin" | "restaurant" | undefined
-  const role =  "restaurant"
+  const role =  "staff"
 
   return (
     <Sidebar collapsible="icon" {...props}>
