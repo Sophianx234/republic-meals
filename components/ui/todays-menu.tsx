@@ -12,15 +12,30 @@ import {
   ChevronLeft,
   Info,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Trash2 // New Icon
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
+// --- NEW SHADCN IMPORTS ---
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+// --------------------------
 import { Textarea } from "@/components/ui/textarea"; 
 import { toast, Toaster } from "sonner";
-import { submitComboOrder } from "@/app/actions/staff"; 
+import { submitComboOrder, cancelOrder } from "@/app/actions/staff"; // Import cancelOrder
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +81,7 @@ const StatusBadge = ({ closed, time }: { closed: boolean, time: string }) => (
 
 export function TodaysMenu({ menuData, existingOrder, userId }: TodaysMenuProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false); // New State
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null); 
   
   // State
@@ -133,12 +149,30 @@ export function TodaysMenu({ menuData, existingOrder, userId }: TodaysMenuProps)
         setCart([]);
         setSpecialNote("");
       } else {
-        toast.error("Order Failed", { description: "Please try again." });
+        toast.error("Order Failed", { description: result.error || "Please try again." });
       }
     } catch (e) {
       toast.error("Connection Error");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // --- NEW: CANCEL HANDLER ---
+  const handleCancelOrder = async () => {
+    if (!existingOrder) return;
+    setIsCanceling(true);
+    try {
+      const result = await cancelOrder(existingOrder.id, userId);
+      if (result.success) {
+        toast.success("Order Cancelled", { description: "You can now place a new order." });
+      } else {
+        toast.error("Could not cancel", { description: result.error });
+      }
+    } catch(e) {
+      toast.error("Error cancelling order");
+    } finally {
+      setIsCanceling(false);
     }
   };
 
@@ -162,7 +196,7 @@ export function TodaysMenu({ menuData, existingOrder, userId }: TodaysMenuProps)
   // 1. Offline State
   if (!menuData || menuData.items.length === 0) {
     return (
-      <div className=" flex-col items-center justify-center min-h-[50vh] text-center px-4 border rounded-lg border-dashed border-gray-200 bg-gray-50/50">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 border rounded-lg border-dashed border-gray-200 bg-gray-50/50">
         <div className="w-16 h-16 bg-white rounded-md shadow-sm border border-gray-200 flex items-center justify-center mb-4">
           <Utensils className="w-6 h-6 text-gray-400" />
         </div>
@@ -172,44 +206,93 @@ export function TodaysMenu({ menuData, existingOrder, userId }: TodaysMenuProps)
     );
   }
 
-  // 2. Existing Order View
+  // 2. Existing Order View (UPDATED)
   if (existingOrder) {
     return (
       <div className="flex justify-center items-start pt-12 min-h-[60vh] p-4">
-        <Card className="w-full max-w-md border border-gray-200 shadow-sm bg-white overflow-hidden rounded-lg">
-          <div className="bg-gray-50/50 p-6 border-b border-gray-100 flex items-center gap-4">
-            <div className="w-10 h-10 bg-emerald-100 rounded-md flex items-center justify-center shrink-0">
-              <Check className="w-5 h-5 text-emerald-700" />
-            </div>
-            <div>
-               <h2 className="text-lg font-bold text-gray-900">Confirmed</h2>
-               <p className="text-xs text-gray-500 font-mono">ID: {existingOrder.id.slice(-6).toUpperCase()}</p>
-            </div>
-          </div>
-          
-          <div className="p-6 space-y-6">
-            <div className="space-y-3">
-              {existingOrder.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 last:border-0">
-                  <span className="font-medium text-gray-700">{item.name}</span>
-                  <Badge variant="outline" className="rounded-md font-mono bg-white text-gray-600">x{item.quantity}</Badge>
+        <div className="w-full max-w-md space-y-4">
+            
+            {/* --- NEW SHADCN ALERT --- */}
+            <Alert className="bg-amber-50 border-amber-200 text-amber-900">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <AlertTitle>Order Placed</AlertTitle>
+                <AlertDescription>
+                    You have an active order. You cannot place a new order unless you cancel this one.
+                </AlertDescription>
+            </Alert>
+
+            <Card className="border border-gray-200 shadow-sm bg-white overflow-hidden rounded-lg">
+                <div className="bg-gray-50/50 p-6 border-b border-gray-100 flex items-center gap-4">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-md flex items-center justify-center shrink-0">
+                        <Check className="w-5 h-5 text-emerald-700" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-900">Confirmed</h2>
+                        <p className="text-xs text-gray-500 font-mono">ID: {existingOrder.id.slice(-6).toUpperCase()}</p>
+                    </div>
                 </div>
-              ))}
-            </div>
-            {existingOrder.note && (
-              <div className="bg-blue-50/50 p-3 rounded-md border border-blue-100">
-                <p className="text-xs text-blue-700 font-semibold mb-1">Kitchen Note:</p>
-                <p className="text-sm text-gray-700">{existingOrder.note}</p>
-              </div>
-            )}
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-sm text-gray-500">Current Status</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 capitalize">
-                {existingOrder.status}
-              </span>
-            </div>
-          </div>
-        </Card>
+            
+                <div className="p-6 space-y-6">
+                    <div className="space-y-3">
+                        {existingOrder.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 last:border-0">
+                                <span className="font-medium text-gray-700">{item.name}</span>
+                                <Badge variant="outline" className="rounded-md font-mono bg-white text-gray-600">x{item.quantity}</Badge>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {existingOrder.note && (
+                        <div className="bg-blue-50/50 p-3 rounded-md border border-blue-100">
+                            <p className="text-xs text-blue-700 font-semibold mb-1">Kitchen Note:</p>
+                            <p className="text-sm text-gray-700">{existingOrder.note}</p>
+                        </div>
+                    )}
+                    
+                    <div className="flex justify-between items-center pt-2">
+                        <span className="text-sm text-gray-500">Current Status</span>
+                        <span className={cn(
+                            "inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium capitalize",
+                            existingOrder.status === 'pending' ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-800"
+                        )}>
+                            {existingOrder.status}
+                        </span>
+                    </div>
+
+                    {/* --- NEW CANCEL BUTTON --- */}
+                    {existingOrder.status === 'pending' && (
+                        <div className="pt-4 border-t border-gray-100">
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" className="w-full bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 hover:text-red-700 shadow-none">
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Cancel Order
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This will remove your order from the kitchen queue. You will need to start over if you want to eat.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Keep Order</AlertDialogCancel>
+                                        <AlertDialogAction 
+                                            onClick={handleCancelOrder} 
+                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                            disabled={isCanceling}
+                                        >
+                                            {isCanceling ? <Loader2 className="w-4 h-4 animate-spin"/> : "Yes, Cancel Order"}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    )}
+                </div>
+            </Card>
+        </div>
       </div>
     );
   }
@@ -264,9 +347,9 @@ export function TodaysMenu({ menuData, existingOrder, userId }: TodaysMenuProps)
                 className="w-full h-10 pl-9 pr-4 rounded-md border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-all"
               />
               {searchQuery && (
-                 <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                   <X className="h-3 w-3" />
-                 </button>
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <X className="h-3 w-3" />
+                  </button>
               )}
             </div>
 

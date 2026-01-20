@@ -66,28 +66,31 @@ export async function getMyDailyOrder(userId: string) {
     await connectToDatabase();
     const today = new Date();
 
+    // FIXED: Removed .populate() because your OrderSchema stores 
+    // items as a snapshot (name, price, quantity), not as references to Food.
     const order = await Order.findOne({
       user: userId,
       date: { $gte: startOfDay(today), $lte: endOfDay(today) }
-    }).populate("items.food", "name price description images").lean();
+    }).lean();
 
     if (!order) return null;
 
     return {
       id: order._id.toString(),
-      status: order.status, // "pending", "ready", "collected"
+      status: order.status, 
       totalAmount: order.totalAmount,
+      note: order.note, // Added note so you can see it in the UI
       items: order.items.map((i: any) => ({
-        name: i.food.name,
+        name: i.name,      // Direct access from Order document
         quantity: i.quantity,
         price: i.price
       }))
     };
   } catch (error) {
+    console.error("Error fetching order:", error);
     return null;
   }
 }
-
 // --- 3. SUBMIT ORDER ---
 export async function submitOrder(userId: string, foodId: string) {
   try {
@@ -120,13 +123,46 @@ export async function submitComboOrder(
   try {
     await connectToDatabase();
     
-    // 1. Fetch details for ALL selected foods to get current prices/names
+    // --- CONFIGURATION ---
+    const CUTOFF_HOUR = 24;   // e.g., 10 AM
+    const CUTOFF_MINUTE = 30; // e.g., 30 Minutes
+    // ---------------------
+
+    const now = new Date();
+    
+    // 1. CHECK CUTOFF TIME
+    // Create a date object for the Cutoff Time TODAY
+    const cutoffTime = new Date(now);
+    cutoffTime.setHours(CUTOFF_HOUR, CUTOFF_MINUTE, 0, 0);
+
+    // If right now is past the cutoff time, block the order
+    if (now > cutoffTime) {
+      return { 
+        success: false, 
+        error: `Orders are closed for the day. Cutoff time was ${CUTOFF_HOUR}:${CUTOFF_MINUTE}.` 
+      };
+    }
+
+    // 2. CHECK FOR EXISTING ORDER TODAY
+    // Set time to midnight (00:00:00) to check the whole day
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const existingOrder = await Order.findOne({ 
+      user: userId,
+      date: { $gte: startOfToday } 
+    });
+
+    if (existingOrder) {
+      return { success: false, error: "You have already placed an order today." };
+    }
+
+    // 3. PROCEED WITH ORDER (Standard Logic)
     const foodIds = items.map(i => i.foodId);
     const foods = await Food.find({ _id: { $in: foodIds } });
 
     if (!foods.length) return { success: false, error: "Items not found" };
 
-    // 2. Build the order items array with snapshot data
     let totalAmount = 0;
     const orderItems = items.map((item) => {
       const foodDetails = foods.find(f => f._id.toString() === item.foodId);
@@ -142,14 +178,13 @@ export async function submitComboOrder(
       };
     }).filter(Boolean);
 
-    // 3. Create Order
     await Order.create({
       user: userId,
-      date: new Date(),
+      date: now,
       items: orderItems,
       totalAmount: totalAmount,
       status: "pending",
-      note: note // Save the special instruction (e.g., "1/2 Rice, 1/2 Beans")
+      note: note 
     });
 
     revalidatePath("/dashboard");
@@ -157,5 +192,31 @@ export async function submitComboOrder(
   } catch (e) {
     console.error(e);
     return { success: false, error: "Failed to place order" };
+  }
+}
+
+
+export async function cancelOrder(orderId: string, userId: string) {
+  try {
+    // await connectToDatabase();
+    
+    // Find and delete the order. 
+    // Security Check: Ensure the order belongs to the requesting user.
+    // Logic Check: Only allow cancelling if status is 'pending'
+    const result = await Order.findOneAndDelete({ 
+      _id: orderId, 
+      user: userId,
+      status: "pending" 
+    });
+
+    if (!result) {
+      return { success: false, error: "Order not found or cannot be cancelled (already processing)." };
+    }
+
+    revalidatePath("/dashboard"); // or your menu path
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { success: false, error: "Failed to cancel order" };
   }
 }
