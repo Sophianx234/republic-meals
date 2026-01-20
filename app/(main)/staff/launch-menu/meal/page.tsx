@@ -24,7 +24,7 @@ export default async function StaffDashboardPage() {
   // 2. Fetch Data in Parallel (Server Side)
   const [menuData, existingOrder] = await Promise.all([
     getTodaysMenu(),
-    getMyDailyOrder(session.user.id), 
+    getMyDailyOrder(session?.user.id), 
   ]);
 
   return (

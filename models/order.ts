@@ -7,11 +7,10 @@ export interface IOrder extends Document {
     name: string;
     price: number;
     quantity: number;
-    note?: string;               // e.g., "No pepper"
   }[];
+  note?: string;               // e.g., "No pepper"
   totalAmount: number;
   status: "pending" | "confirmed" | "ready" | "picked_up" | "cancelled";
-  pickupCode: string;            // A short 4-digit code for verification (optional)
 }
 
 const OrderSchema = new Schema<IOrder>(
@@ -23,16 +22,16 @@ const OrderSchema = new Schema<IOrder>(
         name: { type: String, required: true },
         price: { type: Number, required: false }, // Snapshot price
         quantity: { type: Number, default: 1 },
-        note: String
+        
       }
     ],
-    totalAmount: { type: Number, required: false },
+    totalAmount: { type: Number, required: true },
+    note: String, // Special instructions for the order
     status: {
       type: String,
       enum: ["pending", "confirmed", "ready", "picked_up", "cancelled"],
       default: "pending",
     },
-    pickupCode: { type: String },
   },
   { timestamps: true }
 );
