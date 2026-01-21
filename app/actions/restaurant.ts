@@ -328,6 +328,8 @@ export async function getWeeklySchedule(from: string, to: string) {
 
     // Transform into the format the Planner expects: { "YYYY-MM-DD": ["foodId1", "foodId2"] }
     const scheduleMap: Record<string, string[]> = {};
+
+    // note important menus 
     
     menus.forEach((menu: any) => {
       const dateKey = menu.date.toISOString().split("T")[0];
