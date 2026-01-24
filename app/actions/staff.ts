@@ -14,6 +14,7 @@ const UpdateProfileSchema = z.object({
   name: z.string().min(2, "Name is too short"),
   phone: z.string().optional().or(z.literal("")), // Allow empty string
   department: z.string().optional().or(z.literal("")),
+  branch: z.string().optional().or(z.literal("")),
   floor: z.string().optional().or(z.literal("")),
   defaultNote: z.string().max(200, "Note is too long").optional().or(z.literal("")),
 });
@@ -117,6 +118,7 @@ export async function updateAccountSettings(formData: FormData) {
       name: formData.get("name"),
       phone: formData.get("phone"),
       department: formData.get("department"),
+      branch: formData.get("branch"),
       floor: formData.get("floor"),
       defaultNote: formData.get("defaultNote"),
     };
@@ -131,6 +133,7 @@ export async function updateAccountSettings(formData: FormData) {
     const updateData: any = {
       name: validated.data.name,
       department: validated.data.department,
+      branch: validated.data.branch,
       floor: validated.data.floor,
       phone: validated.data.phone,
       defaultNote: validated.data.defaultNote,

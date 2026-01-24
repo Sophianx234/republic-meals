@@ -9,7 +9,8 @@ import {
   Eye,
   EyeOff,
   Save,
-  Loader2
+  Loader2,
+  Lock
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -152,7 +153,7 @@ export function AccountView({ user }: { user: UserProfile }) {
       
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-        <div className="relative group">
+        <div className="relative group" onClick={() => fileInputRef.current?.click()}>
           <Avatar className="h-24 w-24 border-4 border-white shadow-md cursor-pointer">
             <AvatarImage src={previewImage} className="object-cover" />
             <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl font-bold">
@@ -161,7 +162,7 @@ export function AccountView({ user }: { user: UserProfile }) {
           </Avatar>
           <button 
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            
             className="absolute bottom-0 right-0 bg-gray-900 text-white p-1.5 rounded-full shadow-sm hover:bg-black transition-colors"
           >
             <Camera className="w-4 h-4" />
