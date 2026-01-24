@@ -137,7 +137,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // 2. DETECT ROLE
   // Ensure your auth schema returns one of these strings
   // const role = session?.user?.role as "staff" | "admin" | "restaurant" | undefined
-  const role =  "staff"
+  const role =  "staff" // TEMPORARY HARD CODE FOR TESTING
 
   return (
     <Sidebar collapsible="icon" {...props}>

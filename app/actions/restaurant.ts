@@ -200,6 +200,8 @@ export async function deleteFoodItem(id: string) {
   }
 }
 
+
+
 // 2. UPDATE ACTION
 const EditSchema = z.object({
   id: z.string(),
@@ -361,3 +363,78 @@ export async function clearWeeklySchedule(from: string, to: string) {
     return { success: false, error: "Failed to delete schedule" };
   }
 }
+
+
+
+export async function getStaffWeeklySchedule() {
+  try {
+    await connectToDatabase();
+
+    // 1. Calculate Monday & Friday of the CURRENT week
+    const today = new Date();
+    const day = today.getDay(); // 0=Sun, 1=Mon...
+    
+    // Logic: If Sun(0), go back 6 days to Mon. Else go back (day-1) days.
+    const diffToMon = today.getDate() - day + (day === 0 ? -6 : 1);
+    
+    const monday = new Date(today);
+    monday.setDate(diffToMon);
+    monday.setHours(0, 0, 0, 0);
+
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4); // Mon + 4 days = Fri
+    friday.setHours(23, 59, 59, 999);
+
+    // 2. Fetch Menus in Range
+    const menus = await Menu.find({
+      date: { $gte: monday, $lte: friday }
+    })
+    .populate({
+      path: "items.food",
+      model: Food,
+      select: "name category images price" // Ensure 'price' is in your Food Schema!
+    })
+    .lean();
+
+    // 3. Normalize Data for Frontend (Ensure all 5 days exist)
+    const schedule = [];
+    const iterator = new Date(monday);
+
+    for (let i = 0; i < 5; i++) {
+      // Create a string key "YYYY-MM-DD" for comparison
+      const dateKey = iterator.toISOString().split("T")[0];
+      
+      const foundMenu = menus.find((m: any) => 
+        m.date.toISOString().split("T")[0] === dateKey
+      );
+
+      // Map items if menu exists
+      const items = foundMenu ? foundMenu.items
+        .filter((item: any) => item.food) // Safety check for deleted foods
+        .map((item: any) => ({
+          id: item.food._id.toString(),
+          name: item.food.name,
+          category: item.food.category,
+          price: item.food.price || 0, // Fallback if price missing
+          image: item.food.images?.[0] || null,
+          isSoldOut: item.isSoldOut
+        })) 
+        : [];
+
+      schedule.push({
+        date: new Date(iterator), // Pass actual Date object
+        dayName: iterator.toLocaleDateString("en-US", { weekday: "long" }),
+        items: items
+      });
+
+      // Move to next day
+      iterator.setDate(iterator.getDate() + 1);
+    }
+
+    return { success: true, schedule };
+  } catch (e) {
+    console.error("Weekly Schedule Error:", e);
+    return { success: false, schedule: [] };
+  }
+}
+

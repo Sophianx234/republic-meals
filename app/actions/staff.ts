@@ -118,60 +118,54 @@ export async function submitOrder(userId: string, foodId: string) {
 export async function submitComboOrder(
   userId: string, 
   items: { foodId: string; quantity: number }[], 
-  note: string
+  note: string,
+  dateStr?: string
 ) {
   try {
     await connectToDatabase();
     
-    // --- CONFIGURATION ---
-    const CUTOFF_HOUR = 24;   // e.g., 10 AM
-    const CUTOFF_MINUTE = 30; // e.g., 30 Minutes
-    // ---------------------
-
+    // Default to today if no date provided
+    const orderDate = dateStr ? new Date(dateStr) : new Date();
+    
+    // --- CUTOFF LOGIC (8:30 AM) ---
     const now = new Date();
     
-    // 1. CHECK CUTOFF TIME
-    // Create a date object for the Cutoff Time TODAY
-    const cutoffTime = new Date(now);
-    cutoffTime.setHours(CUTOFF_HOUR, CUTOFF_MINUTE, 0, 0);
-
-    // If right now is past the cutoff time, block the order
-    if (now > cutoffTime) {
-      return { 
-        success: false, 
-        error: `Orders are closed for the day. Cutoff time was ${CUTOFF_HOUR}:${CUTOFF_MINUTE}.` 
-      };
+    // check if ordering for today
+    const isToday = new Date(orderDate).setHours(0,0,0,0) === new Date().setHours(0,0,0,0);
+    
+    if (isToday) {
+        const cutoff = new Date();
+        cutoff.setHours(8, 30, 0, 0); // 8:30 AM
+        if (now > cutoff) {
+            return { success: false, error: "Orders for today closed at 8:30 AM." };
+        }
     }
 
-    // 2. CHECK FOR EXISTING ORDER TODAY
-    // Set time to midnight (00:00:00) to check the whole day
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0, 0, 0, 0);
+    // Check for existing order
+    const startOfDay = new Date(orderDate); startOfDay.setHours(0,0,0,0);
+    const endOfDay = new Date(orderDate); endOfDay.setHours(23,59,59,999);
 
-    const existingOrder = await Order.findOne({ 
-      user: userId,
-      date: { $gte: startOfToday } 
+    const existing = await Order.findOne({
+        user: userId,
+        date: { $gte: startOfDay, $lte: endOfDay },
+        status: { $nin: ["cancelled", "rejected"] }
     });
 
-    if (existingOrder) {
-      return { success: false, error: "You have already placed an order today." };
-    }
+    if (existing) return { success: false, error: "Active order already exists for this date." };
 
-    // 3. PROCEED WITH ORDER (Standard Logic)
+    // Fetch Foods
     const foodIds = items.map(i => i.foodId);
     const foods = await Food.find({ _id: { $in: foodIds } });
-
-    if (!foods.length) return { success: false, error: "Items not found" };
 
     let totalAmount = 0;
     const orderItems = items.map((item) => {
       const foodDetails = foods.find(f => f._id.toString() === item.foodId);
       if (!foodDetails) return null;
 
-      const itemTotal = (foodDetails.price || 0) * item.quantity;
-      totalAmount += itemTotal;
+      totalAmount += (foodDetails.price || 0) * item.quantity;
 
       return {
+        food: foodDetails._id, // <--- CRITICAL FIX: Save the Reference!
         name: foodDetails.name,
         price: foodDetails.price || 0,
         quantity: item.quantity,
@@ -180,14 +174,15 @@ export async function submitComboOrder(
 
     await Order.create({
       user: userId,
-      date: now,
+      date: orderDate,
       items: orderItems,
-      totalAmount: totalAmount,
-      status: "pending",
-      note: note 
+      totalAmount,
+      status: "confirmed",
+      note,
+      pickupCode: `RB-${Math.random().toString(36).substring(2, 5).toUpperCase()}`
     });
 
-    revalidatePath("/dashboard");
+    revalidatePath("/schedule");
     return { success: true };
   } catch (e) {
     console.error(e);
@@ -220,3 +215,107 @@ export async function cancelOrder(orderId: string, userId: string) {
     return { success: false, error: "Failed to cancel order" };
   }
 }
+
+
+
+
+export async function getMonthlySchedule(year: number, month: number, userId: string) {
+  try {
+    await connectToDatabase();
+
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Fetch Menus
+    const menus = await Menu.find({
+      date: { $gte: startDate, $lte: endDate }
+    })
+    .populate({ path: "items.food", model: Food, select: "name category images price" })
+    .lean();
+
+    // Fetch Orders
+    const orders = await Order.find({
+      user: userId,
+      date: { $gte: startDate, $lte: endDate },
+      status: { $nin: ["cancelled"] }
+    })
+    .populate({ 
+        path: "items.food", // This works because we fixed submitComboOrder
+        model: Food, 
+        select: "images" 
+    }) 
+    .lean();
+
+    // Map Menus
+    const scheduleMap: Record<string, any[]> = {};
+    menus.forEach((menu: any) => {
+      const dateKey = menu.date.toISOString().split("T")[0];
+      scheduleMap[dateKey] = (menu.items || [])
+        .filter((i: any) => i.food)
+        .map((i: any) => ({
+          id: i.food._id.toString(),
+          name: i.food.name,
+          category: i.food.category,
+          price: i.food.price || 0,
+          image: i.food.images?.[0] || null,
+          isSoldOut: i.isSoldOut
+        }));
+    });
+
+    // Map Orders (Sanitized)
+    const orderMap: Record<string, any> = {};
+    orders.forEach((order: any) => {
+        const dateKey = order.date.toISOString().split("T")[0];
+        orderMap[dateKey] = {
+            id: order._id.toString(),
+            items: order.items.map((item: any) => ({
+                name: item.name,
+                quantity: item.quantity,
+                // Safely access the populated image
+                image: item.food?.images?.[0] || null 
+            })),
+            totalAmount: order.totalAmount,
+            status: order.status,
+            note: order.note
+        };
+    });
+
+    return { success: true, data: scheduleMap, userOrders: orderMap };
+
+  } catch (e) {
+    console.error("Schedule Error:", e);
+    return { success: false, data: {}, userOrders: {} };
+  }
+}
+
+// Ensure cancelScheduledOrder is present as provided previously
+export async function cancelScheduledOrder(orderId: string, userId: string) {
+    try {
+        await connectToDatabase();
+        const order = await Order.findOne({ _id: orderId, user: userId });
+        
+        if (!order) return { success: false, error: "Order not found" };
+
+        // Calculate Cutoff: 8:30 AM on the Order Date
+        const orderDate = new Date(order.date);
+        const cutoffTime = new Date(orderDate);
+        cutoffTime.setHours(8, 30, 0, 0);
+
+        const now = new Date();
+
+        // Allow cancellation if NOW is before the Cutoff
+        if (now > cutoffTime) {
+            return { success: false, error: "Cancellation period ended at 8:30 AM." };
+        }
+
+        order.status = "cancelled";
+        await order.save();
+        
+        revalidatePath("/schedule");
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: "Failed to cancel" };
+    }
+}
+

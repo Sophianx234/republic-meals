@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Order Lunch | RepublicLunch",
 };
 
-export default async function StaffDashboardPage() {
+export default async function StaffOrderPage() {
   // 1. Get Session Server-Side
   // (Assuming Better Auth since you were using authClient)
   const session = await auth.api.getSession({
