@@ -61,8 +61,8 @@ const NAV_ITEMS = {
       url: "/account",
       icon: History,
       items: [
-        { title: "Order History", url: "/account/history" },
-        { title: "My Expenses", url: "/account/expenses" },
+        { title: "Account Information", url: "/staff/account/info" },
+        { title: "Order History", url: "/staff/account/history" },
       ],
     },
     {
