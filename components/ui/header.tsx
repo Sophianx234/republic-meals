@@ -24,29 +24,34 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, Search, Settings, LogOut, User, CreditCard } from "lucide-react"
+import { Bell, Search, Settings, LogOut, User } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 
 export function Header() {
   const router = useRouter()
-  // 1. Get User Session
   const { data: session } = authClient.useSession()
+  
+  const [searchQuery, setSearchQuery] = React.useState("")
 
-  // 2. Handle Logout
-  const handleLogout = async () => {
-     await authClient.signOut()
-     router.push("/login") // Redirect to login
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
   }
 
-  // 3. Helper for Initials (e.g. "Sophian Abdul" -> "SA")
+  const handleLogout = async () => {
+     await authClient.signOut()
+     router.push("/login")
+  }
+
   const userInitials = session?.user?.name
     ? session.user.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()
     : "U"
 
   return (
-    <header className="sticky z-50 bg-sidebar text-sidebar-foreground top-0  flex h-16 shrink-0 items-center justify-between gap-2 border-b  px-4 shadow-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+    <header className="sticky z-50 bg-sidebar text-sidebar-foreground top-0 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 shadow-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
       
-      {/* --- LEFT SECTION: Context --- */}
+      {/* --- LEFT SECTION --- */}
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -63,33 +68,38 @@ export function Header() {
         </Breadcrumb>
       </div>
 
-      {/* --- RIGHT SECTION: Actions --- */}
+      {/* --- RIGHT SECTION --- */}
       <div className="flex items-center gap-4">
         
-        {/* 1. Global Search (Hidden on small mobile) */}
+        {/* 1. Global Search */}
         <div className="relative hidden md:flex items-center">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search orders, staff..."
-              className="h-9 w-64 rounded-lg bg-muted/50 pl-9 text-sm shadow-none focus-visible:ring-1 md:w-80"
+              // UPDATED PLACEHOLDER HERE:
+              placeholder="Search menu, orders, or pickup codes..." 
+              className="h-9 w-80 rounded-lg bg-muted/50 pl-9 pr-12 text-sm shadow-none focus-visible:ring-1"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
             />
+            <kbd className="pointer-events-none absolute right-2.5 top-[50%] -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
         </div>
 
         {/* 2. Notifications */}
         <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
             <Bell className="h-5 w-5" />
-            {/* Red Dot for Unread */}
             <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-600 border border-background"></span>
             <span className="sr-only">Notifications</span>
         </Button>
 
-        {/* 3. User Profile Dropdown */}
+        {/* 3. User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               <Avatar className="h-9 w-9 border border-input">
-                {/* Prioritize session image, fallback to initials */}
                 <AvatarImage 
                     src={session?.user?.image || ""} 
                     alt={session?.user?.name || "User"} 
@@ -113,13 +123,9 @@ export function Header() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push('/profile')}>
+              <DropdownMenuItem onClick={() => router.push('/account')}>
                 <User className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push('/billing')}>
-                <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>Billing</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push('/settings')}>
                 <Settings className="mr-2 h-4 w-4 text-muted-foreground" />

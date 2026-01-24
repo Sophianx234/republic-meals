@@ -32,6 +32,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { authClient } from "@/lib/auth-client"
+import Link from "next/link"
 
 // --- 1. DEFINE NAVIGATION FOR EACH ROLE ---
 
@@ -70,7 +71,7 @@ const NAV_ITEMS = {
       url: "/support",
       icon: LifeBuoy,
       items: [
-        { title: "Report Issue", url: "/support" },
+        { title: "Report Issue", url: "/staff/support/report-issue" },
       ],
     },
   ],
@@ -137,7 +138,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // 2. DETECT ROLE
   // Ensure your auth schema returns one of these strings
   // const role = session?.user?.role as "staff" | "admin" | "restaurant" | undefined
-  const role =  "staff" // TEMPORARY HARD CODE FOR TESTING
+  const role =  "restaurant" // TEMPORARY HARD CODE FOR TESTING
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -162,10 +163,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {NAV_ITEMS.restaurant.map((item) => (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild tooltip={item.name}>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>{item.name}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

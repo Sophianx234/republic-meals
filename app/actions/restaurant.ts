@@ -5,6 +5,7 @@ import { uploadToCloudinary } from "@/lib/cloudinary"
 import { connectToDatabase } from "@/lib/mongodb"
 import { Food } from "@/models/food"
 import { Menu } from "@/models/menu"
+import { Order } from "@/models/order"
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
 import { z } from "zod"
@@ -438,3 +439,71 @@ export async function getStaffWeeklySchedule() {
   }
 }
 
+
+export async function getLiveOrders(dateFilter?: string) {
+  try {
+    await connectToDatabase();
+
+    // Default to today if no date provided
+    let dateQuery = {};
+    if (dateFilter) {
+       const start = new Date(dateFilter);
+       start.setHours(0,0,0,0);
+       const end = new Date(dateFilter);
+       end.setHours(23,59,59,999);
+       dateQuery = { date: { $gte: start, $lt: end } };
+    } else {
+       // Default: Get EVERYTHING that is not completed/cancelled (Live View)
+       // OR get today's completed items
+       const startToday = new Date();
+       startToday.setHours(0,0,0,0);
+       
+       dateQuery = {
+         $or: [
+            { status: { $in: ["pending", "confirmed", "ready"] } }, // Always show live work
+            { status: { $in: ["picked_up", "cancelled"] }, date: { $gte: startToday } } // Show today's history
+         ]
+       };
+    }
+
+    const orders = await Order.find(dateQuery)
+    .populate("user", "name department branch image")
+    .sort({ createdAt: 1 }) // FIFO (First In, First Out)
+    .lean();
+
+    return {
+      success: true,
+      orders: orders.map((order: any) => ({
+        ...order,
+        _id: order._id.toString(),
+        user: order.user ? { ...order.user, _id: order.user._id.toString() } : null,
+        items: order.items.map((i: any) => ({ ...i, _id: undefined }))
+      }))
+    };
+
+  } catch (error) {
+    console.error("Kitchen Fetch Error:", error);
+    return { success: false, orders: [] };
+  }
+}
+
+export async function updateOrderStatus(orderId: string, newStatus: string) {
+  try {
+    await connectToDatabase();
+    
+    // Safety Check: Ensure order isn't already in a final state if trying to modify
+    const currentOrder = await Order.findById(orderId);
+    if (!currentOrder) return { success: false, error: "Order not found" };
+
+    if (["picked_up", "cancelled"].includes(currentOrder.status)) {
+        return { success: false, error: "Cannot modify a completed order." };
+    }
+    
+    await Order.findByIdAndUpdate(orderId, { status: newStatus });
+    
+    revalidatePath("/restaurant/live");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Failed to update status" };
+  }
+}
