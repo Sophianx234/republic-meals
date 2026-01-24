@@ -4,17 +4,12 @@ import { useState, useRef } from "react";
 import { 
   User as UserIcon, 
   Mail, 
-  Building2, 
-  MapPin, 
-  Phone, 
-  Save, 
-  Loader2,
-  MessageSquareText,
   Camera,
-  Lock,
   ShieldCheck,
   Eye,
-  EyeOff
+  EyeOff,
+  Save,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,25 +18,60 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"; // Ensure these are imported
 import { toast, Toaster } from "sonner";
-import { authClient } from "@/lib/auth-client"; // Your Better Auth Client
+import { authClient } from "@/lib/auth-client";
 import { updateAccountSettings } from "@/app/actions/staff";
 
 interface UserProfile {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   image?: string;
   department?: string;
+  branch?: string; // Added branch
   floor?: string;
   phone?: string;
   defaultNote?: string;
 }
 
+export const republicBankBranches = [
+  "Abossey Okai Branch", "Accra Central Branch", "Accra New Town Branch", "Achimota Branch", "Adabraka Branch", 
+  "Adjiriganor Branch", "Asamankese Branch", "Asankragua Branch", "Ashaiman Branch", "Asokwa Branch (The Ark)", 
+  "Baatsona Branch", "Bolgatanga Branch", "Cape Coast Branch", "Dansoman Branch", "Ebankese (Head Office)", 
+  "Essam Branch", "Goaso Branch", "Ho Branch", "Juaboso Branch", "Kasoa Branch", "KNUST Branch (Kumasi)", 
+  "Koforidua Branch", "Kumasi Branch", "Legon Branch", "Madina Branch", "Post Office Square Branch", 
+  "Private Bank Branch (Labone)", "Republic Court Branch", "Sefwi Bekwai Branch", "Sefwi Wiawso Branch", 
+  "Suame Magazine Branch", "Swedru Branch", "Takoradi Branch", "Tarkwa Branch", "Tamale Branch", 
+  "Techiman Branch", "Tema Branch", "Tema Community 25 Branch", "Tudu Branch", "Winneba Branch"
+];
+
+const republicBankDepartments = [
+  "Retail Banking", "Corporate Banking", "Commercial Banking", "SME Banking", "Private Banking", "Treasury", 
+  "Trade Finance", "Operations", "Customer Service", "Branch Operations", "Digital Banking", "Electronic Banking (E-Banking)", 
+  "Cards & Payments", "Cash Management", "Credit", "Credit Administration", "Risk Management", "Compliance", 
+  "Anti-Money Laundering (AML)", "Internal Audit", "Finance", "Accounts", "Financial Control", "Human Resources", 
+  "Learning & Development", "Administration", "Procurement", "Legal", "Company Secretariat", "Information Technology (IT)", 
+  "Information Security", "Data & Analytics", "Product Development", "Marketing", "Corporate Communications", 
+  "Public Relations", "Sales", "Business Development", "Strategy", "Project Management Office (PMO)", "Quality Assurance", 
+  "Facilities Management", "Security", "Recovery & Collections", "Customer Experience (CX)", "Agency Banking", 
+  "Mobile Banking", "International Banking"
+];
+
 export function AccountView({ user }: { user: UserProfile }) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   
+  // State for Dropdowns
+  const [selectedBranch, setSelectedBranch] = useState(user.branch || "");
+  const [selectedDept, setSelectedDept] = useState(user.department || "");
+
   // Image State
   const [previewImage, setPreviewImage] = useState(user.image);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,8 +86,6 @@ export function AccountView({ user }: { user: UserProfile }) {
   });
 
   // --- HANDLERS ---
-
-  // 1. Image Selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -66,14 +94,17 @@ export function AccountView({ user }: { user: UserProfile }) {
     }
   };
 
-  // 2. Profile Submit
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    // Append userId explicitly
-    formData.append("userId", user._id); 
+    formData.append("userId", user.id); 
+    
+    // Explicitly append dropdown values if they aren't caught by name attribute
+    // (Shadcn Select handles name prop, but explicit append ensures safety)
+    formData.set("branch", selectedBranch);
+    formData.set("department", selectedDept);
 
     try {
       const result = await updateAccountSettings(formData);
@@ -90,27 +121,23 @@ export function AccountView({ user }: { user: UserProfile }) {
     }
   };
 
-  // 3. Password Submit (Using Better Auth Client)
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwords.newPassword !== passwords.confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
-    
     setPassLoading(true);
     try {
-      // Better Auth Client Method
       const { data, error } = await authClient.changePassword({
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
-        revokeOtherSessions: true, // Optional: Log out other devices
+        revokeOtherSessions: true,
       });
-
       if (error) {
         toast.error("Error", { description: error.message });
       } else {
-        toast.success("Password Changed", { description: "Your password has been updated securely." });
+        toast.success("Password Changed");
         setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
       }
     } catch (err) {
@@ -132,8 +159,6 @@ export function AccountView({ user }: { user: UserProfile }) {
               {user.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          
-          {/* Camera Overlay */}
           <button 
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -151,7 +176,7 @@ export function AccountView({ user }: { user: UserProfile }) {
           </div>
           <div className="flex items-center gap-2 mt-3">
              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded border border-emerald-100 font-medium capitalize">
-               {user.department || "Staff Member"}
+               {selectedDept || "Staff Member"}
              </span>
           </div>
         </div>
@@ -178,7 +203,6 @@ export function AccountView({ user }: { user: UserProfile }) {
               </CardHeader>
               <CardContent className="space-y-6">
                 
-                {/* Hidden File Input for Image */}
                 <input 
                   type="file" 
                   name="image" 
@@ -197,13 +221,40 @@ export function AccountView({ user }: { user: UserProfile }) {
                     <Label>Email</Label>
                     <Input value={user.email} disabled className="bg-gray-50 text-gray-500" />
                   </div>
+                  
+                  {/* DEPARTMENT SELECT */}
                   <div className="space-y-2">
                     <Label>Department</Label>
-                    <Input name="department" defaultValue={user.department} placeholder="e.g. IT Dept" />
+                    <Select name="department" value={selectedDept} onValueChange={setSelectedDept}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {republicBankDepartments.map((dept) => (
+                          <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
+
+                  {/* BRANCH SELECT */}
                   <div className="space-y-2">
-                    <Label>Office Location / Floor</Label>
-                    <Input name="floor" defaultValue={user.floor} placeholder="e.g. 2nd Floor" />
+                    <Label>Branch</Label>
+                    <Select name="branch" value={selectedBranch} onValueChange={setSelectedBranch}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {republicBankBranches.map((branch) => (
+                          <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Office Location / Floor (Optional)</Label>
+                    <Input name="floor" defaultValue={user.floor} placeholder="e.g. 2nd Floor, Room 4" />
                   </div>
                   <div className="space-y-2">
                     <Label>Phone Number</Label>

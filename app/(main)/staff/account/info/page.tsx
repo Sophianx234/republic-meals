@@ -21,6 +21,7 @@ export default async function AccountPage() {
   if (!session.user) {
       return <div className="p-12 text-center">User profile not found.</div>;
   }
+  console.log("AccountPage session user:", session.user);
 
   return (
     <div className="min-h-screen bg-gray-50/50 pt-24 px-4 sm:px-6 lg:px-8 pb-20">

@@ -14,12 +14,8 @@ export const auth = betterAuth({
     additionalFields: {
       staffID: {
         type: "string",
-        required: false, // Set to true if required on signup
-        input: false,    // false = users can't set this themselves (API/Admin only)
-      },
-      department: {
-        type: "string",
         required: false,
+        input: false,
       },
       role: {
         type: "string",
@@ -29,7 +25,13 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: null 
-      }
+      },
+      // --- Added Custom Fields ---
+      department: { type: "string", required: false },
+      branch: { type: "string", required: false }, // New field for Branch
+      floor: { type: "string", required: false },
+      phone: { type: "string", required: false },
+      defaultNote: { type: "string", required: false }
     },
   },
   emailAndPassword: {
