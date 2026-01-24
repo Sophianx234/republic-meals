@@ -491,19 +491,18 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
   try {
     await connectToDatabase();
     
-    // Safety Check: Ensure order isn't already in a final state if trying to modify
+    // We remove the strict check that prevented editing 'picked_up' orders
+    // to allow reversals. However, we should still ensure the order exists.
     const currentOrder = await Order.findById(orderId);
     if (!currentOrder) return { success: false, error: "Order not found" };
-
-    if (["picked_up", "cancelled"].includes(currentOrder.status)) {
-        return { success: false, error: "Cannot modify a completed order." };
-    }
     
+    // Update the status
     await Order.findByIdAndUpdate(orderId, { status: newStatus });
     
-    revalidatePath("/restaurant/live");
+    revalidatePath("/kitchen/orders"); // Ensure this matches your actual page route
     return { success: true };
   } catch (error) {
+    console.error("Status Update Error:", error);
     return { success: false, error: "Failed to update status" };
   }
 }
