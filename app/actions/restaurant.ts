@@ -5,7 +5,11 @@ import { uploadToCloudinary } from "@/lib/cloudinary"
 import { connectToDatabase } from "@/lib/mongodb"
 import { Food } from "@/models/food"
 import { Menu } from "@/models/menu"
+import "@/models/user"
+import "@/models/order"
+import "@/models/food"
 import { Order } from "@/models/order"
+import { endOfMonth, startOfMonth } from "date-fns"
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
 import { z } from "zod"
@@ -504,5 +508,55 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
   } catch (error) {
     console.error("Status Update Error:", error);
     return { success: false, error: "Failed to update status" };
+  }
+}
+
+
+export async function getMonthlyOrders(monthStr: string) {
+  try {
+    await connectToDatabase();
+
+    // monthStr format: "YYYY-MM" (e.g. "2026-01")
+    const date = new Date(monthStr + "-01"); 
+    const start = startOfMonth(date);
+    const end = endOfMonth(date);
+
+    const orders = await Order.find({
+      createdAt: { $gte: start, $lte: end },
+      status: { $ne: "cancelled" } 
+    })
+    .populate("user", "name department")
+    .sort({ createdAt: -1 })
+    .lean();
+
+    // Calculate Summary Stats
+    const totalOrders = orders.length;
+    const uniqueUsers = new Set(orders.map((o: any) => o.user?._id.toString())).size;
+
+    return {
+      success: true,
+      orders: orders.map((order: any) => ({
+        ...order,
+        _id: order._id.toString(),
+        user: order.user ? { ...order.user, _id: order.user._id.toString() } : null,
+        // FIX: Explicitly select fields. Do NOT use ...i
+        items: order.items.map((i: any) => ({ 
+            name: i.name,
+            quantity: i.quantity,
+            notes: i.notes,
+            price: i.price, // Include if needed, but DO NOT include 'food' or 'buffer'
+            _id: undefined 
+        })),
+        createdAt: order.createdAt.toISOString()
+      })),
+      stats: {
+        totalOrders,
+        uniqueUsers
+      }
+    };
+
+  } catch (error) {
+    console.error("Monthly History Error:", error);
+    return { success: false, orders: [], stats: { totalOrders: 0, uniqueUsers: 0 } };
   }
 }

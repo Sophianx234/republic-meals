@@ -80,7 +80,7 @@ const NAV_ITEMS = {
   restaurant: [
     {
       name: "Kitchen Dashboard",
-      url: "/restaurant",
+      url: "/restaurant/dashboard",
       icon: Store,
     },
     {
