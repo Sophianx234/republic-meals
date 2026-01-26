@@ -26,6 +26,7 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null 
       },
+      banned:{type: "boolean", defaultValue: false},
       // --- Added Custom Fields ---
       department: { type: "string", required: false },
       branch: { type: "string", required: false }, // New field for Branch

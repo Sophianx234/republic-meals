@@ -7,6 +7,7 @@ export interface IUser {
   role?: string;
   // Custom Fields
   department?: string;
+  banned?:boolean
   branch?: string; // <--- ADDED THIS
   floor?: string;
   phone?: string;
@@ -22,6 +23,7 @@ const UserSchema = new Schema<IUser>(
     
     // --- CRITICAL: Define your custom fields here ---
     department: { type: String },
+    banned: { type: Boolean, default: false },
     branch: { type: String }, // <--- ADDED THIS
     floor: { type: String },
     phone: { type: String },
