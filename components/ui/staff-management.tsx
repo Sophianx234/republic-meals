@@ -44,7 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { getStaffList, updateStaffMember, toggleUserStatus } from "@/app/actions/admin";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 
 // --- CONSTANTS ---
@@ -333,7 +333,7 @@ export function StaffManagement() {
           )}
         </DialogContent>
       </Dialog>
-
+<Toaster position="top-right"/>
     </div>
   );
 }
