@@ -5,6 +5,7 @@ export interface IFood extends Document {
   description?: string;
   category: "Main" | "Side" | "Drink" | "Snack";
   images?: string[]; // Cloudinary URLs
+  price?: number;
   isArchived: boolean; // Soft delete (don't lose history)
 }
 
@@ -14,6 +15,7 @@ const FoodSchema = new Schema<IFood>(
     description: String,
     category: { type: String, default: "Main" },
     images: [String],
+    price: Number,
     isArchived: { type: Boolean, default: false },
   },
   { timestamps: true }
