@@ -44,7 +44,7 @@ const NAV_ITEMS = {
     }
   ],
   
-  // ROLE: STAFF (The consumers)
+  // ROLE: STAFF
   staff: [
     {
       title: "Lunch Menu",
@@ -75,7 +75,7 @@ const NAV_ITEMS = {
     },
   ],
 
-  // ROLE: RESTAURANT (The providers)
+  // ROLE: RESTAURANT
   restaurant: [
     {
       name: "Kitchen Dashboard",
@@ -104,7 +104,7 @@ const NAV_ITEMS = {
     }
   ],
 
-  // ROLE: ADMIN (The overseers)
+  // ROLE: ADMIN
   admin: [
     {
       name: "Admin Overview",
@@ -130,12 +130,11 @@ const NAV_ITEMS = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname() // Hook to detect current route
+  const pathname = usePathname()
   const { data: session, isPending } = authClient.useSession()
 
   if (isPending) return null
 
-  // DETECT ROLE (Hardcoded to admin for your testing)
   const role = "admin" 
 
   return (
@@ -146,7 +145,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       
       <div className="h-px bg-sidebar-border -translate-2 shadow-sm my-2 opacity-50 w-full" />
       
-      <SidebarContent className="mx-4">
+      {/* FIXED: Removed 'mx-4' so icons fit when collapsed */}
+      <SidebarContent>
         {/* SCENARIO A: STAFF VIEW */}
         {role === "staff" && (
            <NavMain items={NAV_ITEMS.staff} />
@@ -159,17 +159,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {NAV_ITEMS.restaurant.map((item) => {
-                  const isActive = pathname === item.url
+                  // FIX: Use strict equality '===' to avoid selecting multiple links
+                  const isActive = pathname === item.url 
+
                   return (
                     <SidebarMenuItem key={item.name}>
                       <SidebarMenuButton 
                         asChild 
                         tooltip={item.name}
                         isActive={isActive}
-                        className={isActive ? "bg-blue-400 text-sidebar-accent-foreground font-medium" : ""}
+                        className={isActive ? "!bg-[#0090BF] !text-white font-medium hover:!bg-[#0090BF]/90" : ""}
                       >
                         <Link href={item.url}>
-                          <item.icon className={isActive ? "text-primary" : ""} />
+                          <item.icon className={isActive ? "!text-white" : ""} />
                           <span>{item.name}</span>
                         </Link>
                       </SidebarMenuButton>
@@ -188,14 +190,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {NAV_ITEMS.admin.map((item) => {
-                  const isActive = pathname === item.url
+                  // FIX: Use strict equality '===' to avoid selecting multiple links
+                  const isActive = pathname === item.url 
+                  
                   return (
                     <SidebarMenuItem key={item.name}>
                       <SidebarMenuButton 
                         asChild 
                         tooltip={item.name}
                         isActive={isActive}
-                        className={isActive ? "!bg-republic-bank-blue !text-white font-medium" : ""}
+                        className={isActive ? "!bg-[#0090BF] !text-white font-medium hover:!bg-[#0090BF]/90" : ""}
                       >
                         <Link href={item.url}>
                           <item.icon className={isActive ? "!text-white" : ""} />

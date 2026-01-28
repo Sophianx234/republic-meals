@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation" // 1. Added usePathname
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,9 +29,14 @@ import { authClient } from "@/lib/auth-client"
 
 export function Header() {
   const router = useRouter()
+  const pathname = usePathname() // 2. Get current path
   const { data: session } = authClient.useSession()
   
   const [searchQuery, setSearchQuery] = React.useState("")
+
+  // 3. GENERATE BREADCRUMBS
+  // Split path into segments, remove empty strings
+  const pathSegments = pathname.split('/').filter(Boolean)
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -40,8 +45,8 @@ export function Header() {
   }
 
   const handleLogout = async () => {
-     await authClient.signOut()
-     router.push("/login")
+      await authClient.signOut()
+      router.push("/login")
   }
 
   const userInitials = session?.user?.name
@@ -55,15 +60,36 @@ export function Header() {
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
+        
+        {/* DYNAMIC BREADCRUMB */}
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Overview</BreadcrumbPage>
-            </BreadcrumbItem>
+            {/* Optional: Always show a Home/Dashboard link first */}
+            
+            
+
+            {pathSegments.map((segment, index) => {
+              const href = `/${pathSegments.slice(0, index + 1).join('/')}`
+              const isLast = index === pathSegments.length - 1
+              
+              // Format name: "launch-menu" -> "Launch Menu"
+              const title = segment
+                .replace(/-/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase())
+
+              return (
+                <React.Fragment key={href}>
+                  <BreadcrumbItem className="hidden md:block">
+                    {isLast ? (
+                      <BreadcrumbPage>{title}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={href}>{title}</BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && <BreadcrumbSeparator className="hidden md:block" />}
+                </React.Fragment>
+              )
+            })}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
@@ -76,7 +102,6 @@ export function Header() {
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              // UPDATED PLACEHOLDER HERE:
               placeholder="Search menu, orders, or pickup codes..." 
               className="h-9 w-80 rounded-lg bg-muted/50 pl-9 pr-12 text-sm shadow-none focus-visible:ring-1"
               value={searchQuery}
@@ -84,7 +109,7 @@ export function Header() {
               onKeyDown={handleSearch}
             />
             <kbd className="pointer-events-none absolute right-2.5 top-[50%] -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 sm:flex">
-              <span className="text-xs">⌘</span>K
+              <span className="text-xs">ctrl</span> + K
             </kbd>
         </div>
 
