@@ -114,7 +114,8 @@ export function SubsidyReport() {
         </head>
         <body>
           <div class="header">
-            <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+            <img src="/images/rb.png" alt="RepublicLunch" style="height:40px; object-fit:contain; vertical-align:middle;"/>
                 <div class="logo">Republic Lunch</div>
                 <div style="font-size: 14px; font-weight: bold;">Monthly Subsidy Report</div>
             </div>

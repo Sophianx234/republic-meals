@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname } from "next/navigation"
 import {
   UtensilsCrossed,
   LayoutDashboard,
@@ -16,12 +17,10 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarRail,
   SidebarGroup,
@@ -86,12 +85,12 @@ const NAV_ITEMS = {
     {
       name: "Live Orders",
       url: "/restaurant/orders",
-      icon: ClipboardList, // The "Ticket" view
+      icon: ClipboardList,
     },
     {
       name: "Menu Management",
       url: "/restaurant/menu",
-      icon: ChefHat, // Upload & Edit Menu
+      icon: ChefHat,
     },
     {
       name: "Upload Menu", 
@@ -125,31 +124,30 @@ const NAV_ITEMS = {
     {
       name: "System Settings",
       url: "/admin/settings",
-      icon: UtensilsCrossed, // Configure meal subsidies etc.
+      icon: UtensilsCrossed,
     }
   ]
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname() // Hook to detect current route
   const { data: session, isPending } = authClient.useSession()
 
   if (isPending) return null
 
-  // 2. DETECT ROLE
-  // Ensure your auth schema returns one of these strings
-  // const role = session?.user?.role as "staff" | "admin" | "restaurant" | undefined
-  const role =  "admin" // TEMPORARY HARD CODE FOR TESTING
+  // DETECT ROLE (Hardcoded to admin for your testing)
+  const role = "admin" 
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" {...props} >
       <SidebarHeader>
         <TeamSwitcher teams={NAV_ITEMS.teams} />
       </SidebarHeader>
       
-      <div className="h-px bg-sidebar-border shadow-sm mx-4 my-2 opacity-50" />
+      <div className="h-px bg-sidebar-border -translate-2 shadow-sm my-2 opacity-50 w-full" />
       
-      <SidebarContent>
-        {/* SCENARIO A: STAFF VIEW (Standard Navigation) */}
+      <SidebarContent className="mx-4">
+        {/* SCENARIO A: STAFF VIEW */}
         {role === "staff" && (
            <NavMain items={NAV_ITEMS.staff} />
         )}
@@ -160,16 +158,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>Kitchen Operations</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {NAV_ITEMS.restaurant.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild tooltip={item.name}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {NAV_ITEMS.restaurant.map((item) => {
+                  const isActive = pathname === item.url
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton 
+                        asChild 
+                        tooltip={item.name}
+                        isActive={isActive}
+                        className={isActive ? "bg-blue-400 text-sidebar-accent-foreground font-medium" : ""}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className={isActive ? "text-primary" : ""} />
+                          <span>{item.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -181,29 +187,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>Administration</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {NAV_ITEMS.admin.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild tooltip={item.name}>
-                      <a href={item.url}>
-                        <item.icon />
-                        <span>{item.name}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {NAV_ITEMS.admin.map((item) => {
+                  const isActive = pathname === item.url
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton 
+                        asChild 
+                        tooltip={item.name}
+                        isActive={isActive}
+                        className={isActive ? "!bg-republic-bank-blue !text-white font-medium" : ""}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className={isActive ? "!text-white" : ""} />
+                          <span>{item.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
         
-        {/* Fallback or Shared Links (Optional) */}
-        {/* You can add a shared "Support" section here if needed for all roles */}
-
       </SidebarContent>
 
-      <SidebarFooter>
-        {session?.user && <NavUser user={session.user} />}
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

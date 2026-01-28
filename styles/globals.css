@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-   --republic-bank-blue: rgb(0, 125, 197); /* RGB, Tailwind-friendly */
+   --republic-bank-blue: #0090BF; /* RGB, Tailwind-friendly */
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -81,6 +81,7 @@
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-republic-bank-blue: var(--republic-bank-blue);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
