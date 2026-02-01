@@ -102,7 +102,7 @@ export function Header() {
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search menu, orders, or pickup codes..." 
+              placeholder="Search menu or orders" 
               className="h-9 w-80 rounded-lg bg-muted/50 pl-9 pr-12 text-sm shadow-none focus-visible:ring-1"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

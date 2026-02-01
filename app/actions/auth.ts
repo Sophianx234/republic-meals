@@ -19,6 +19,7 @@ export async function signInAction(formData: FormData) {
   const response = await auth.api.signInEmail({
     body: {email:data.email,password:data.password },
   })
+  
 
   if(!response) {
     return {
@@ -28,7 +29,7 @@ export async function signInAction(formData: FormData) {
     }
   }
   
-  redirect("/dashboard");
+  redirect(`${response.user.role === 'staff' ? '/staff/launch-menu/meal' :response.user.role === 'admin'? '/admin/meals':'/restaurant/dashboard' }`);
 }
 export async function signupAction(formData: FormData) {
   const rawData = {

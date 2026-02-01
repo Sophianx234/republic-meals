@@ -135,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   if (isPending) return null
 
-  const role = "admin" 
+  const role = session?.user?.role   
 
   return (
     <Sidebar collapsible="icon" {...props} >
@@ -153,7 +153,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
 
         {/* SCENARIO B: RESTAURANT VIEW */}
-        {role === "restaurant" && (
+        {role === "catering" && (
           <SidebarGroup>
             <SidebarGroupLabel>Kitchen Operations</SidebarGroupLabel>
             <SidebarGroupContent>

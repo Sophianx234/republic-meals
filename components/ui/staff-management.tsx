@@ -77,7 +77,7 @@ interface StaffUser {
   name: string;
   email: string;
   image?: string;
-  role: "user" | "admin" | "kitchen";
+  role: "user" | "admin" | "rrestaurant" ;
   department?: string;
   branch?: string;
   banned?: boolean;

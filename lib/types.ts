@@ -3,7 +3,7 @@ export interface User {
   email: string
   name: string
   password: string
-  role: "staff" | "admin"
+  role: "staff" | "admin" | "restaurant"
   createdAt: Date
   updatedAt: Date
 }
