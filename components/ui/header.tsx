@@ -148,14 +148,24 @@ export function Header() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push('/account')}>
+              <DropdownMenuItem onClick={() =>{
+
+                if(session?.user.role === 'admin'){
+                router.push('/admin/profile')
+                }else if(session?.user.role === 'staff'){
+                router.push('/staff/account/info')
+                }else{
+                router.push('/restaurant/profile') 
+                }
+                
+                }}>
                 <User className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push('/settings')}>
+              {session?.user.role=='admin'&&<DropdownMenuItem onClick={() => router.push('/admin/settings')}>
                 <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>Settings</span>
-              </DropdownMenuItem>
+              </DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem 

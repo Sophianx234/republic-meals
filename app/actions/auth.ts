@@ -29,7 +29,7 @@ export async function signInAction(formData: FormData) {
     }
   }
   
-  redirect(`${response.user.role === 'staff' ? '/staff/launch-menu/meal' :response.user.role === 'admin'? '/admin/meals':'/restaurant/dashboard' }`);
+  redirect(`${response.user.role === 'staff' ? '/staff/launch-menu/meal' :response.user.role === 'admin'? '/admin':'/restaurant/dashboard' }`);
 }
 export async function signupAction(formData: FormData) {
   const rawData = {

@@ -5,6 +5,8 @@ export interface IUser {
   email: string;
   image?: string;
   role?: string;
+  
+profileColor: string | null;
   // Custom Fields
   department?: string;
   banned?:boolean
@@ -26,6 +28,7 @@ const UserSchema = new Schema<IUser>(
     banned: { type: Boolean, default: false },
     branch: { type: String }, // <--- ADDED THIS
     floor: { type: String },
+    profileColor: { type: String, default: null },
     phone: { type: String },
     defaultNote: { type: String },
     // -----------------------------------------------
