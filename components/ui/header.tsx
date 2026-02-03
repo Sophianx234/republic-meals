@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter, usePathname } from "next/navigation" // 1. Added usePathname
+import { useRouter, usePathname } from "next/navigation"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,19 +24,107 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, Search, Settings, LogOut, User } from "lucide-react"
+import { Bell, Search, Settings, LogOut, User, UtensilsCrossed, History, LifeBuoy, Store, ClipboardList, ChefHat, UploadCloud, CheckCircle2, LayoutDashboard, Users, FileSpreadsheet } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
+
+// --- 1. DEFINE NAV ITEMS (Normally imported, but defined here for context) ---
+const NAV_ITEMS = {
+  teams: [
+    { name: "Republic Meals", logo: '/images/rb.png', plan: "Corporate Service" }
+  ],
+  staff: [
+    {
+      title: "Lunch Menu", url: "/staff", icon: UtensilsCrossed, isActive: true,
+      items: [
+        { title: "Order Meal", url: "/staff/launch-menu/meal" },
+        { title: "Weekly Schedule", url: "/staff/launch-menu/weekly-schedule" },
+      ],
+    },
+    {
+      title: "My Account", url: "/account", icon: History,
+      items: [
+        { title: "Account Information", url: "/staff/account/info" },
+        { title: "Order History", url: "/staff/account/history" },
+      ],
+    },
+    {
+      title: "Support", url: "/support", icon: LifeBuoy,
+      items: [ { title: "Report Issue", url: "/staff/support/report-issue" } ],
+    },
+  ],
+  restaurant: [
+    { name: "Kitchen Dashboard", url: "/restaurant/dashboard", icon: Store },
+    { name: "Live Orders", url: "/restaurant/orders", icon: ClipboardList },
+    { name: "Menu Management", url: "/restaurant/menu", icon: ChefHat },
+    { name: "Upload Menu", url: "/restaurant/menu/upload", icon: UploadCloud },
+    { name: "Order History", url: "/restaurant/history", icon: CheckCircle2 }
+  ],
+  admin: [
+    { name: "Admin Overview", url: "/admin", icon: LayoutDashboard },
+    { name: "Staff Management", url: "/admin/staff", icon: Users },
+    { name: "Financial Reports", url: "/admin/reports", icon: FileSpreadsheet },
+    { name: "System Settings", url: "/admin/settings", icon: UtensilsCrossed }
+  ]
+}
+
+// --- 2. HELPER: Flatten NAV_ITEMS into a simple URL -> Title map ---
+const createUrlMap = () => {
+  const map = new Map<string, string>();
+  
+  // Helper to process a list of items
+  const processItems = (items: any[]) => {
+    items.forEach(item => {
+      // Handle both 'title' (staff) and 'name' (admin/restaurant) keys
+      const label = item.title || item.name;
+      if (item.url && label) {
+        map.set(item.url, label);
+      }
+      // Process nested items if they exist
+      if (item.items) {
+        processItems(item.items);
+      }
+    });
+  };
+
+  // Process all roles
+  processItems(NAV_ITEMS.staff);
+  processItems(NAV_ITEMS.restaurant);
+  processItems(NAV_ITEMS.admin);
+  
+  return map;
+};
+
+// Create the map once (outside component to avoid recalc)
+const URL_TO_TITLE_MAP = createUrlMap();
 
 export function Header() {
   const router = useRouter()
-  const pathname = usePathname() // 2. Get current path
+  const pathname = usePathname()
   const { data: session } = authClient.useSession()
   
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  // 3. GENERATE BREADCRUMBS
-  // Split path into segments, remove empty strings
-  const pathSegments = pathname.split('/').filter(Boolean)
+  // --- 3. GENERATE VALID BREADCRUMBS ---
+  const breadcrumbs = React.useMemo(() => {
+    const segments = pathname.split('/').filter(Boolean);
+    const validCrumbs: { href: string; title: string }[] = [];
+    
+    let currentPath = "";
+
+    segments.forEach((segment) => {
+      currentPath += `/${segment}`;
+      
+      // CHECK: Does this constructed path exist in our configuration?
+      if (URL_TO_TITLE_MAP.has(currentPath)) {
+        validCrumbs.push({
+          href: currentPath,
+          title: URL_TO_TITLE_MAP.get(currentPath) || segment
+        });
+      }
+    });
+
+    return validCrumbs;
+  }, [pathname]);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -64,26 +152,16 @@ export function Header() {
         {/* DYNAMIC BREADCRUMB */}
         <Breadcrumb>
           <BreadcrumbList>
-            {/* Optional: Always show a Home/Dashboard link first */}
-            
-            
-
-            {pathSegments.map((segment, index) => {
-              const href = `/${pathSegments.slice(0, index + 1).join('/')}`
-              const isLast = index === pathSegments.length - 1
+            {breadcrumbs.map((crumb, index) => {
+              const isLast = index === breadcrumbs.length - 1;
               
-              // Format name: "launch-menu" -> "Launch Menu"
-              const title = segment
-                .replace(/-/g, ' ')
-                .replace(/\b\w/g, char => char.toUpperCase())
-
               return (
-                <React.Fragment key={href}>
+                <React.Fragment key={crumb.href}>
                   <BreadcrumbItem className="hidden md:block">
                     {isLast ? (
-                      <BreadcrumbPage>{title}</BreadcrumbPage>
+                      <BreadcrumbPage>{crumb.title}</BreadcrumbPage>
                     ) : (
-                      <BreadcrumbLink href={href}>{title}</BreadcrumbLink>
+                      <BreadcrumbLink href={crumb.href}>{crumb.title}</BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
                   {!isLast && <BreadcrumbSeparator className="hidden md:block" />}
@@ -149,23 +227,23 @@ export function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() =>{
-
                 if(session?.user.role === 'admin'){
-                router.push('/admin/profile')
+                  router.push('/admin/profile')
                 }else if(session?.user.role === 'staff'){
-                router.push('/staff/account/info')
+                  router.push('/staff/account/info')
                 }else{
-                router.push('/restaurant/profile') 
+                  router.push('/restaurant/profile') 
                 }
-                
-                }}>
+              }}>
                 <User className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              {session?.user.role=='admin'&&<DropdownMenuItem onClick={() => router.push('/admin/settings')}>
-                <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>Settings</span>
-              </DropdownMenuItem>}
+              {session?.user.role === 'admin' && (
+                <DropdownMenuItem onClick={() => router.push('/admin/settings')}>
+                  <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
