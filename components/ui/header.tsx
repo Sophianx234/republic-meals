@@ -130,7 +130,7 @@ export function Header() {
                     alt={session?.user?.name || "User"} 
                     className="object-cover"
                 />
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                <AvatarFallback className={`${session?.user?.profileColor || 'bg-primary/10'} text-primary font-medium`}>
                     {userInitials}
                 </AvatarFallback>
               </Avatar>

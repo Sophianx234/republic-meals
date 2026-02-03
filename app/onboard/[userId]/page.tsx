@@ -45,7 +45,7 @@ export default function ProfileSetupPage() {
       if (result?.success) {
         console.log("Profile updated successfully")
         toast.success("Profile updated successfully!")
-        router.push("/dashboard")
+        router.push("/staff/launch-menu/meal")
       } else {
         toast.error(result?.error || "Something went wrong")
         setIsPending(false) // Only stop loading if error. If success, keep loading while redirecting.

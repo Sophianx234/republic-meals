@@ -1,10 +1,10 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; // <--- Import Controller
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { RiseLoader } from "react-spinners"
+import { RiseLoader } from "react-spinners";
 import {
   Field,
   FieldDescription,
@@ -13,14 +13,21 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+// --- NEW IMPORTS ---
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+// -------------------
 import Link from "next/link";
 import { signupAction } from "@/app/actions/auth";
 import { useState } from "react";
 import { SignupInput, signupSchema } from "@/lib/validation";
-import { Mirage } from 'ldrs/react'
-import 'ldrs/react/Mirage.css'
-
-// Default values shown
+import { republicBankBranches } from "./ui/staff-management";
+import { republicBankDepartments } from "./ui/account-view";
 
 export function SignupForm({
   className,
@@ -32,6 +39,7 @@ export function SignupForm({
   const {
     register,
     handleSubmit,
+    control, // <--- Destructure control for the Select components
     formState: { errors },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -46,21 +54,20 @@ export function SignupForm({
     formData.set("email", data.email);
     formData.set("password", data.password);
     formData.set("confirm-password", data.confirmPassword);
+    formData.set("branch", data.branch);
+    formData.set("department", data.department);
 
     const result = await signupAction(formData);
+    
+    setLoading(false); 
 
-    setLoading(false);
-
-    if (!result.success) {
+    if (result && !result.success) {
       if (result.fieldErrors) {
-        setGlobalError("Please fix the errors above.");
+        setGlobalError("Please check the fields above.");
       } else {
         setGlobalError(result.message || "Something went wrong.");
       }
-      return;
     }
-
-    // Success: redirect happens inside signupAction
   };
 
   return (
@@ -84,15 +91,61 @@ export function SignupForm({
         {/* Name */}
         <Field>
           <FieldLabel htmlFor="name">Full Name</FieldLabel>
-          <Input
-            {...register("name")}
-            id="name"
-            placeholder="John Doe"
-          />
+          <Input {...register("name")} id="name" placeholder="John Doe" />
           {errors.name && (
-            <FieldDescription className="text-red-500">
-              {errors.name.message}
-            </FieldDescription>
+            <FieldDescription className="text-red-500">{errors.name.message}</FieldDescription>
+          )}
+        </Field>
+
+        {/* --- BRANCH SELECT --- */}
+        <Field>
+          <FieldLabel>Branch</FieldLabel>
+          <Controller
+            control={control}
+            name="branch"
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your branch" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[200px]"> 
+                  {republicBankBranches.map((branch) => (
+                    <SelectItem key={branch} value={branch}>
+                      {branch}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.branch && (
+            <FieldDescription className="text-red-500">{errors.branch.message}</FieldDescription>
+          )}
+        </Field>
+
+        {/* --- DEPARTMENT SELECT --- */}
+        <Field>
+          <FieldLabel>Department</FieldLabel>
+          <Controller
+            control={control}
+            name="department"
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your department" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[200px]">
+                  {republicBankDepartments.map((dept) => (
+                    <SelectItem key={dept} value={dept}>
+                      {dept}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.department && (
+            <FieldDescription className="text-red-500">please select department</FieldDescription>
           )}
         </Field>
 
@@ -106,9 +159,7 @@ export function SignupForm({
             placeholder="example@email.com"
           />
           {errors.email && (
-            <FieldDescription className="text-red-500">
-              {errors.email.message}
-            </FieldDescription>
+            <FieldDescription className="text-red-500">{errors.email.message}</FieldDescription>
           )}
         </Field>
 
@@ -122,9 +173,7 @@ export function SignupForm({
             placeholder="At least 8 characters"
           />
           {errors.password && (
-            <FieldDescription className="text-red-500">
-              {errors.password.message}
-            </FieldDescription>
+            <FieldDescription className="text-red-500">{errors.password.message}</FieldDescription>
           )}
         </Field>
 
@@ -138,32 +187,24 @@ export function SignupForm({
             placeholder="Re-enter your password"
           />
           {errors.confirmPassword && (
-            <FieldDescription className="text-red-500">
-              {errors.confirmPassword.message}
-            </FieldDescription>
+            <FieldDescription className="text-red-500">{errors.confirmPassword.message}</FieldDescription>
           )}
         </Field>
 
         <Field>
-          <Button disabled={loading} type="submit" className="relative">
-            {loading ?
-             <RiseLoader
-             size={6}
-             color="white"
-  
-/> : "Create Account"}
+          <Button disabled={loading} type="submit" className="relative  w-full">
+            {loading ? <RiseLoader size={6} color="white" /> : "Create Account"}
           </Button>
         </Field>
 
         <FieldSeparator>Or continue with</FieldSeparator>
 
         <Field>
-          <Button variant="outline" type="button">
+          <Button variant="outline" type="button" className="w-full">
             Sign up with GitHub
           </Button>
-
-          <FieldDescription className="px-6 text-center">
-            Already have an account? <Link href="/login">Sign in</Link>
+          <FieldDescription className="px-6 text-center mt-4">
+            Already have an account? <Link href="/login" className="underline hover:text-primary">Sign in</Link>
           </FieldDescription>
         </Field>
       </FieldGroup>

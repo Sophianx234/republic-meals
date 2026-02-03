@@ -33,27 +33,57 @@ export async function signInAction(formData: FormData) {
 }
 export async function signupAction(formData: FormData) {
   const rawData = {
-  name: String(formData.get("name") ?? ""),
-  email: String(formData.get("email") ?? ""),
-  password: String(formData.get("password") ?? ""),
-  confirmPassword: String(formData.get("confirm-password") ?? ""),
-};
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+    confirmPassword: String(formData.get("confirm-password") ?? ""),
+    // --- EXTRACT NEW FIELDS ---
+    branch: String(formData.get("branch") ?? ""),
+    department: String(formData.get("department") ?? ""),
+    // --------------------------
+  };
 
+  const parseResult = signupSchema.safeParse(rawData);
 
-  const data = signupSchema.parse(rawData);
-  const response = await auth.api.signUpEmail({
-    body: { email: data.email, password: data.password, name: data.name },
-
-  })
-
-  if(!response) {
+  if (!parseResult.success) {
     return {
       success: false,
-      message: "Sign up failed",
-    }
+      message: "Validation failed",
+      fieldErrors: parseResult.error.flatten().fieldErrors,
+    };
   }
 
-  redirect(`/onboard/${response.user.id}?username=${rawData.name}`);
+  const data = parseResult.data;
+
+  try {
+    const response = await auth.api.signUpEmail({
+      body: { 
+        email: data.email, 
+        password: data.password, 
+        name: data.name,
+        // --- PASS TO AUTH ---
+        // Ensure your Better Auth config allows these fields, 
+        // or that your Mongoose schema is set up to capture them.
+        branch: data.branch,
+        department: data.department
+        // --------------------
+      },
+    });
+
+    if (!response) {
+      return { success: false, message: "Sign up failed" };
+    }
+
+    // Success redirect
+    redirect(`/onboard/${response.user.id}?username=${encodeURIComponent(data.name)}`);
+
+  } catch (error) {
+    // If the redirect throws (Next.js behavior), rethrow it
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
+    return { success: false, message: "An error occurred during sign up" };
+  }
 }
 
 export async function signOutAction() {

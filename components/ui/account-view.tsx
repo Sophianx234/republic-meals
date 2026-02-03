@@ -53,7 +53,7 @@ export const republicBankBranches = [
   "Techiman Branch", "Tema Branch", "Tema Community 25 Branch", "Tudu Branch", "Winneba Branch"
 ];
 
-const republicBankDepartments = [
+export const republicBankDepartments = [
   "Retail Banking", "Corporate Banking", "Commercial Banking", "SME Banking", "Private Banking", "Treasury", 
   "Trade Finance", "Operations", "Customer Service", "Branch Operations", "Digital Banking", "Electronic Banking (E-Banking)", 
   "Cards & Payments", "Cash Management", "Credit", "Credit Administration", "Risk Management", "Compliance", 
