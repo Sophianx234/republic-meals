@@ -138,7 +138,7 @@ export function ReportIssueForm() {
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button type="submit" disabled={loading} className="bg-gray-900 hover:bg-gray-800 w-full md:w-auto">
+              <Button type="submit" disabled={loading} className="bg-[#0090BF] hover:bg-[#007a9e] w-full md:w-auto">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
                 Submit Report
               </Button>

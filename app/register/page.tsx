@@ -34,7 +34,7 @@ export default async function RegisterPage() {
             <div className="absolute inset-0 bg-[#0090BF]/20" />
             <div className="absolute inset-0 bg-black/60" />
             <Image
-              src='/images/happy-4.jpg'
+              src='/images/happy-4.png'
               alt="Image"
               width={10000}
               height={1000}

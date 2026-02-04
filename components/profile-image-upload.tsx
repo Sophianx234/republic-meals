@@ -136,7 +136,7 @@ export default function ProfileImageUpload({
                     onClick={onContinue}
                     disabled={isLoading}
                     className={cn(
-                        "w-full max-w-[240px] group flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 py-2.5 px-6 rounded-xl font-medium shadow-lg transition-all duration-300",
+                        "w-full max-w-[240px] group flex items-center bg-[#0090BF] justify-center gap-2   text-white dark:text-gray-900 py-2.5 px-6 rounded-xl font-medium shadow-lg transition-all duration-300",
                         isLoading ? "opacity-80 cursor-wait" : "hover:shadow-xl hover:-translate-y-0.5"
                     )}
                 >

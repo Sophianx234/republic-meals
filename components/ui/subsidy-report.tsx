@@ -234,7 +234,7 @@ export function SubsidyReport() {
               <Button 
                 onClick={handleRecalculate} 
                 disabled={loading} 
-                className="w-full md:w-auto bg-slate-900 text-white hover:bg-slate-800"
+                className="w-full md:w-auto  text-white "
               >
                  {loading ? <span className="animate-spin mr-2"><Loader2/></span> : <Calculator className="w-4 h-4 mr-2" />}
                  Recalculate

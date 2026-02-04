@@ -14,7 +14,8 @@ import {
   Percent,
   Coins,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -156,7 +157,7 @@ export function SystemSettings({ initialSettings }: { initialSettings: SettingsD
                                 />
                                 <div className="absolute right-3 top-3 text-slate-400 font-bold text-xs">%</div>
                             </div>
-                            <p className="text-xs text-emerald-600 font-medium">Bank pays: GH₵ {bankCost}</p>
+                            <p className="text-xs text-[#0090BF] font-medium">Bank pays: GH₵ {bankCost}</p>
                         </div>
                         <div className="text-slate-300 font-light text-3xl">/</div>
                         <div className="w-full space-y-2">
@@ -170,19 +171,19 @@ export function SystemSettings({ initialSettings }: { initialSettings: SettingsD
                                 />
                                 <div className="absolute right-3 top-3 text-slate-400 font-bold text-xs">%</div>
                             </div>
-                            <p className="text-xs text-orange-600 font-medium">Staff pays: GH₵ {staffCost}</p>
+                            <p className="text-xs text-emerald-500 font-medium">Staff pays: GH₵ {staffCost}</p>
                         </div>
                     </div>
 
                     <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex border border-slate-200">
                         <div 
-                            className="h-full bg-emerald-500 flex items-center justify-center text-[9px] text-white font-bold transition-all duration-500" 
+                            className="h-full bg-[#0090BF] flex items-center justify-center text-[9px] text-white font-bold transition-all duration-500" 
                             style={{ width: `${formData.bankSubsidyPercent}%` }}
                         >
                             BANK
                         </div>
                         <div 
-                            className="h-full bg-orange-500 flex items-center justify-center text-[9px] text-white font-bold transition-all duration-500" 
+                            className="h-full  bg-emerald-500 flex items-center justify-center text-[9px] text-white font-bold transition-all duration-500" 
                             style={{ width: `${formData.staffSubsidyPercent}%` }}
                         >
                             STAFF
@@ -237,28 +238,44 @@ export function SystemSettings({ initialSettings }: { initialSettings: SettingsD
       </div>
 
       {/* FLOATING ACTION BAR */}
-      <div className={cn(
-          "fixed bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2 p-1.5 pl-4 bg-slate-900/95 backdrop-blur-md text-white rounded-full shadow-2xl transition-all duration-300 z-50 border border-slate-700/50",
-          hasChanges ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
-      )}>
-         <span className="text-sm font-medium mr-2">Unsaved changes</span>
-         <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleReset} 
-            className="hover:bg-slate-800 text-slate-400 hover:text-white rounded-full h-8 px-3"
-         >
-            Discard
-         </Button>
-         <Button 
-            size="sm" 
-            onClick={handleSave} 
-            disabled={loading} 
-            className="bg-white text-slate-950 hover:bg-slate-200 rounded-full h-8 px-4 font-semibold"
-         >
-            {loading ? <RotateCcw className="animate-spin w-3.5 h-3.5" /> : "Save Changes"}
-         </Button>
-      </div>
+      <div
+  className={cn(
+    "fixed bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2 p-1.5 pl-4",
+    "bg-primary/95 backdrop-blur-md text-primary-foreground",
+    "rounded-full shadow-2xl transition-all duration-300 z-50",
+    "border border-border",
+    hasChanges
+      ? "translate-y-0 opacity-100"
+      : "translate-y-24 opacity-0 pointer-events-none"
+  )}
+>
+  <span className="text-sm font-medium mr-2">
+    Unsaved changes
+  </span>
+
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={handleReset}
+    className="rounded-full h-8 px-3 text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+  >
+    Discard
+  </Button>
+
+  <Button
+    size="sm"
+    onClick={handleSave}
+    disabled={loading}
+    className="rounded-full h-8 px-4 font-semibold bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+  >
+    {loading ? (
+      <Loader2 className="animate-spin w-3.5 h-3.5" />
+    ) : (
+      "Save Changes"
+    )}
+  </Button>
+</div>
+
 
     </div>
   );
