@@ -267,7 +267,7 @@ export function MonthlyView({ userId }: { userId: string }) {
                         .map((item, i) => (
                           <div
                             key={i}
-                            className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                            className="h-1.5 w-1.5 rounded-full bg-[#0090BF]"
                           />
                         ))
                     ) : (
@@ -306,7 +306,7 @@ export function MonthlyView({ userId }: { userId: string }) {
                 <Check className="w-3 h-3" /> Order Confirmed
               </span>
             ) : (
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded mt-2 inline-block">
+              <span className="text-xs font-semibold text-[#0090BF] bg-[#0090BF]/20 px-2 py-1 rounded mt-2 inline-block">
                 {menuItems.length > 0
                   ? "Accepting Orders"
                   : "No Menu Published"}

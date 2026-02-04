@@ -10,7 +10,8 @@ import {
   UserCog, 
   Loader2,
   Ban,
-  CheckCircle2
+  CheckCircle2,
+  ChefHat
 } from "lucide-react";
 import { 
   Table, 
@@ -77,7 +78,7 @@ interface StaffUser {
   name: string;
   email: string;
   image?: string;
-  role: "user" | "admin" | "rrestaurant" ;
+  role: "user" | "admin" | "catering" ;
   department?: string;
   branch?: string;
   banned?: boolean;
@@ -281,8 +282,8 @@ export function StaffManagement() {
                             <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="user">User (Standard)</SelectItem>
-                            <SelectItem value="kitchen">Kitchen Staff</SelectItem>
+                            <SelectItem value="staff">Staff</SelectItem>
+                            <SelectItem value="catering">Catering Staff</SelectItem>
                             <SelectItem value="admin">Administrator</SelectItem>
                         </SelectContent>
                       </Select>
@@ -341,13 +342,13 @@ export function StaffManagement() {
 function RoleBadge({ role }: { role: string }) {
     const styles: Record<string, string> = {
         admin: "bg-purple-100 text-purple-700 hover:bg-purple-100 border-purple-200",
-        kitchen: "bg-orange-100 text-orange-700 hover:bg-orange-100 border-orange-200",
-        user: "bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200"
+        catering: "bg-orange-100 text-orange-700 hover:bg-orange-100 border-orange-200",
+        staff: "bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200"
     };
 
     return (
         <Badge variant="secondary" className={cn("capitalize font-medium border", styles[role] || styles.user)}>
-            {role === 'admin' && <Shield className="w-3 h-3 mr-1" />}
+            {role === 'admin'? <Shield className="w-3 h-3 mr-1" />:role === 'staff' ? <UserCog className="w-3 h-3 mr-1" /> : <ChefHat className="w-3 h-3 mr-1" />}
             {role}
         </Badge>
     );

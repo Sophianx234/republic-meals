@@ -129,7 +129,7 @@ export function OrderAnalytics({ data }: OrderHistoryProps) {
 
       {/* --- KPI CARDS (Hidden on Print) --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
-        <Card className="border-l-4 border-l-black shadow-sm">
+        <Card className=" shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Total Meals</CardTitle>
             <Utensils className="w-4 h-4 text-blue-500" />
@@ -140,7 +140,7 @@ export function OrderAnalytics({ data }: OrderHistoryProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-black shadow-sm">
+        <Card className=" shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Active Month</CardTitle>
             <CalendarCheck className="w-4 h-4 text-emerald-500" />
@@ -153,7 +153,7 @@ export function OrderAnalytics({ data }: OrderHistoryProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-black shadow-sm bg-gray-50/50">
+        <Card className=" shadow-sm bg-gray-50/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Total Value</CardTitle>
             <CreditCard className="w-4 h-4 text-gray-400" />
