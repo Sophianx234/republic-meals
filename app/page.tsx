@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, X } from "lucide-react";
+import { Menu, X, Zap } from "lucide-react";
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,11 +17,21 @@ import {
   Smartphone,
   Utensils,
   UtensilsCrossed
+  , Flame, Leaf, Star,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 // Professional Animation Variants
+
+
+// Map icons to tags for a professional touch
+const getTagIcon = (tag: string) => {
+  if (tag.includes('LOCAL')) return <Flame className="w-3 h-3" />;
+  if (tag.includes('CONTINENTAL')) return <Leaf className="w-3 h-3" />;
+  return <Star className="w-3 h-3" />;
+};
+
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -52,6 +62,37 @@ const itemVariants = {
     y: 0, 
     transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
   },
+};
+
+const steps = [
+  {
+    step: "01",
+    title: "Menu Intelligence",
+    description:
+      "Staff access a rotating menu system engineered around availability, nutrition balance, and cost efficiency.",
+    icon: ClipboardList,
+  },
+  {
+    step: "02",
+    title: "Cut-Off Enforcement",
+    description:
+      "Orders lock automatically at 9:00 AM daily, enabling predictable prep cycles and zero operational drift.",
+    icon: Clock,
+  },
+  {
+    step: "03",
+    title: "Secure Fulfilment",
+    description:
+      "Meals are prepared and distributed under a controlled, auditable workflow across all branches.",
+    icon: ShieldCheck,
+  },
+];
+
+const fade = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: "easeOut" },
+  viewport: { once: true },
 };
 
 export default function LandingPage() {
@@ -234,71 +275,97 @@ export default function LandingPage() {
       </div>
 
       {/* --- FEATURES --- */}
-      <section id="how-it-works" className="scroll-mt-20 py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-slate-900">Standardized Meal Reservations</h2>
-            <p className="text-slate-500 mt-4 text-lg">Our internal protocol ensures every staff member receives their choice of meal without delays.</p>
-          </motion.div>
+      <section
+      id="how-it-works"
+      className="relative py-40 bg-gradient-to-b from-white to-[#F8FAFC]"
+    >
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        {/* Header */}
+        <motion.div {...fade} className="max-w-3xl mb-24">
+          <span className="text-xs font-black tracking-[0.25em] uppercase text-[#0090BF]">
+            How It Works
+          </span>
+          <h2 className="mt-6 text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
+            A predictable system.
+            <br />
+            <span className="text-slate-400">
+              Designed for operational calm.
+            </span>
+          </h2>
+          <p className="mt-6 text-lg text-slate-500 leading-relaxed">
+            We replaced guesswork with structure — a controlled flow that keeps
+            kitchens fast and teams fed without friction.
+          </p>
+        </motion.div>
 
-          {/* Block 1 */}
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="grid lg:grid-cols-2 gap-16 items-center"
-          >
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-blue-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Planning" className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover" />
-            </div>
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-[#0090BF] text-xs font-bold uppercase tracking-wider rounded-md">
-                <ClipboardList className="w-4 h-4" /> Protocol
-              </div>
-              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
-                Weekly Pre-Selection.<br />
-                <span className="text-slate-900">Automated Logistics.</span>
-              </h3>
-              <p className="text-slate-600 text-lg leading-relaxed">
-                Log in every Sunday to view the upcoming menu. Select your meals for the entire business week to ensure the kitchen captures your preference.
-              </p>
-            </div>
-          </motion.div>
+        {/* Timeline */}
+        <div className="relative space-y-20">
+          {/* Vertical Line */}
+          <div className="absolute left-5 top-0 h-full w-px bg-slate-200 hidden sm:block" />
 
-          {/* Block 2 (Reverse) */}
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="grid lg:grid-cols-2 gap-16 items-center"
-          >
-            <div className="space-y-6 order-2 lg:order-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider rounded-md">
-                <Clock className="w-4 h-4" /> Deadlines
+          {steps.map((item, index) => (
+            <motion.div
+              key={item.step}
+              {...fade}
+              transition={{ delay: index * 0.15 }}
+              className="relative flex gap-8"
+            >
+              {/* Step Indicator */}
+              <div className="relative z-10 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#0090BF] text-white flex items-center justify-center font-bold">
+                  {item.step}
+                </div>
               </div>
-              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
-                9:00 AM Cutoff.<br />
-                <span className="text-slate-900">Reduced Food Waste.</span>
-              </h3>
-              <p className="text-slate-600 text-lg leading-relaxed">
-                To maintain operational efficiency, all daily modifications must be completed before the morning cutoff. This allows our vendors to prep with precision.
-              </p>
-            </div>
-            <div className="relative group order-1 lg:order-2">
-              <div className="absolute -inset-4 bg-orange-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80" alt="Flexibility" className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover" />
-            </div>
-          </motion.div>
+
+              {/* Content */}
+              <div className="flex-1 grid gap-4">
+                <div className="flex items-center gap-3 text-[#0090BF]">
+                  <item.icon className="w-5 h-5" />
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    {item.title}
+                  </h3>
+                </div>
+                <p className="text-slate-500 text-lg leading-relaxed max-w-xl">
+                  {item.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
-      </section>
+
+        {/* Bottom Highlights */}
+        <motion.div
+          {...fade}
+          className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-slate-200 pt-16"
+        >
+          {[
+            {
+              icon: Zap,
+              title: "Real-Time Sync",
+              desc: "Live kitchen availability updates across locations.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Enterprise Security",
+              desc: "SSO-based access control with audit visibility.",
+            },
+            {
+              icon: ArrowRight,
+              title: "Location Agnostic",
+              desc: "Employees move freely between branches.",
+            },
+          ].map((item, i) => (
+            <div key={i} className="space-y-4">
+              <item.icon className="w-6 h-6 text-[#0090BF]" />
+              <h4 className="font-bold text-slate-900 text-lg">
+                {item.title}
+              </h4>
+              <p className="text-slate-500 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
 
       {/* --- MENU SNEAK PEEK --- */}
       <section id="menu-preview" className="scroll-mt-20 py-24 bg-slate-50 border-y border-slate-200">
@@ -325,16 +392,58 @@ export default function LandingPage() {
               { title: "Grilled Choice", sub: "Healthy greens and lean protein.", img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800", tag: "CONTINENTAL", color: "bg-[#0090BF]" },
               { title: "Traditional Banku", sub: "Freshly served with Tilapia.", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800", tag: "WEEKEND FAVORITE", color: "bg-slate-800" },
             ].map((item, idx) => (
-              <motion.div key={idx} variants={fadeInUp} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
-                <div className="h-56 overflow-hidden relative">
-                  <div className={`absolute top-4 left-4 text-white text-xs font-bold px-3 py-1 rounded-full z-10 ${item.color}`}>{item.tag}</div>
-                  <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt={item.title} />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-slate-900">{item.title}</h3>
-                  <p className="text-slate-500 text-sm mt-1">{item.sub}</p>
-                </div>
-              </motion.div>
+             <motion.div 
+  key={idx} 
+  variants={fadeInUp} 
+  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+>
+  {/* Image Container */}
+  <div className="h-60 overflow-hidden relative">
+    {/* Dynamic Tag with Icon */}
+    <div className={`absolute top-4 left-4 text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-20 flex items-center gap-1.5 backdrop-blur-md shadow-lg ${item.color} border border-white/20`}>
+      {getTagIcon(item.tag)}
+      {item.tag}
+    </div>
+
+    {/* Hover Overlay - Professional "Hook" */}
+    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors duration-500 z-10 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 flex items-center gap-2 text-[#0090BF] font-bold text-xs shadow-xl">
+           Reserve Spot <ArrowRight className="w-3.5 h-3.5" />
+        </div>
+    </div>
+
+    <img 
+      src={item.img} 
+      className="w-full h-full object-cover group-hover:scale-105 transition duration-700 ease-out" 
+      alt={item.title} 
+    />
+  </div>
+
+  {/* Content Area */}
+  <div className="p-6">
+    <div className="flex justify-between items-start mb-2">
+      <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#0090BF] transition-colors">
+        {item.title}
+      </h3>
+      <div className="flex items-center gap-1 text-orange-400 bg-orange-50 px-2 py-0.5 rounded-md">
+        <Star className="w-3 h-3 fill-current" />
+        <span className="text-[10px] font-bold">4.9</span>
+      </div>
+    </div>
+    
+    <p className="text-slate-500 text-sm leading-relaxed mb-4">
+      {item.sub}
+    </p>
+
+    <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+      <div className="flex items-center gap-2 text-slate-400">
+        <ChefHat className="w-4 h-4" />
+        <span className="text-[10px] font-medium uppercase tracking-wider">Certified Kitchen</span>
+      </div>
+      <div className="w-2 h-2 rounded-full bg-[#0090BF] animate-pulse" title="Available Today" />
+    </div>
+  </div>
+</motion.div>
             ))}
           </motion.div>
         </div>
