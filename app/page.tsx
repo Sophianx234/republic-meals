@@ -64,37 +64,43 @@ const itemVariants = {
   },
 };
 
-const steps = [
-  {
-    step: "01",
-    title: "Menu Intelligence",
-    description:
-      "Staff access a rotating menu system engineered around availability, nutrition balance, and cost efficiency.",
-    icon: ClipboardList,
-  },
-  {
-    step: "02",
-    title: "Cut-Off Enforcement",
-    description:
-      "Orders lock automatically at 9:00 AM daily, enabling predictable prep cycles and zero operational drift.",
-    icon: Clock,
-  },
-  {
-    step: "03",
-    title: "Secure Fulfilment",
-    description:
-      "Meals are prepared and distributed under a controlled, auditable workflow across all branches.",
-    icon: ShieldCheck,
-  },
-];
-
 const fade = {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-100px" },
+  };
+
+  const steps = [
+    {
+      step: "01",
+      title: "Weekly Planning",
+      description: "Log in every Sunday to sync with the upcoming kitchen cycle. Choose your meals for the business week in under sixty seconds.",
+      icon: Zap,
+      image: "/images/food-2.jpg" // Use high-quality UI mockups or kitchen shots
+    },
+    {
+      step: "02",
+      title: "The Hard Cutoff",
+      description: "Our 9:00 AM daily threshold ensures vendors receive precise data, virtually eliminating food waste and prep delays.",
+      icon: Clock,
+      image: "/images/food-3.jpg"
+    },
+    {
+      step: "03",
+      title: "Seamless Collection",
+      description: "Scan your digital voucher at any Republic Bank kitchen location. Your meal is prepped, packed, and ready.",
+      icon: Utensils,
+      image: "/images/food-4.jpg"
+    }
+  ];
+
+/* const fade = {
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
   transition: { duration: 0.6, ease: "easeOut" },
   viewport: { once: true },
 };
-
+ */
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -275,92 +281,95 @@ export default function LandingPage() {
       </div>
 
       {/* --- FEATURES --- */}
-      <section
-      id="how-it-works"
-      className="relative py-40 bg-gradient-to-b from-white to-[#F8FAFC]"
-    >
+      <section id="how-it-works" className="relative py-40 bg-gradient-to-b from-white to-[#F8FAFC]">
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        
         {/* Header */}
-        <motion.div {...fade} className="max-w-3xl mb-24">
+        <motion.div {...fade} className="max-w-3xl mb-32">
           <span className="text-xs font-black tracking-[0.25em] uppercase text-[#0090BF]">
             How It Works
           </span>
-          <h2 className="mt-6 text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
+          <h2 className="mt-6 text-4xl lg:text-6xl font-bold tracking-tighter text-slate-900">
             A predictable system.
             <br />
-            <span className="text-slate-400">
-              Designed for operational calm.
-            </span>
+            <span className="text-slate-400">Designed for operational calm.</span>
           </h2>
-          <p className="mt-6 text-lg text-slate-500 leading-relaxed">
+          <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-2xl">
             We replaced guesswork with structure — a controlled flow that keeps
             kitchens fast and teams fed without friction.
           </p>
         </motion.div>
 
-        {/* Timeline */}
-        <div className="relative space-y-20">
-          {/* Vertical Line */}
-          <div className="absolute left-5 top-0 h-full w-px bg-slate-200 hidden sm:block" />
+        {/* Timeline with Images */}
+        <div className="relative space-y-32">
+          {/* Vertical Line (Centered for desktop) */}
+          <div className="absolute left-5 sm:left-1/2 top-0 h-full w-px bg-slate-200 -translate-x-1/2 hidden sm:block" />
 
-          {steps.map((item, index) => (
-            <motion.div
-              key={item.step}
-              {...fade}
-              transition={{ delay: index * 0.15 }}
-              className="relative flex gap-8"
-            >
-              {/* Step Indicator */}
-              <div className="relative z-10 flex-shrink-0">
-                <div className="w-10 h-10 rounded-full bg-[#0090BF] text-white flex items-center justify-center font-bold">
-                  {item.step}
+          {steps.map((item, index) => {
+            const isEven = index % 2 === 0;
+            return (
+              <motion.div
+                key={item.step}
+                {...fade}
+                transition={{ delay: index * 0.1, duration: 0.8 }}
+                className={`relative flex flex-col ${isEven ? 'sm:flex-row' : 'sm:flex-row-reverse'} gap-12 lg:gap-24 items-center`}
+              >
+                {/* Step Indicator (Centered Bubble) */}
+                <div className="absolute left-5 sm:left-1/2 top-0 sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 z-20 hidden sm:block">
+                  <div className="w-12 h-12 rounded-full bg-white border-4 border-[#F8FAFC] shadow-xl flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-[#0090BF] text-white flex items-center justify-center text-xs font-black">
+                      {item.step}
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div className="flex-1 grid gap-4">
-                <div className="flex items-center gap-3 text-[#0090BF]">
-                  <item.icon className="w-5 h-5" />
-                  <h3 className="text-2xl font-bold text-slate-900">
-                    {item.title}
-                  </h3>
+                {/* Content Side */}
+                <div className="flex-1 w-full space-y-4 text-left">
+                   <div className="flex items-center gap-3 text-[#0090BF]">
+                    <item.icon className="w-6 h-6" />
+                    <h3 className="text-3xl font-bold tracking-tight text-slate-900">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-slate-500 text-lg leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
-                <p className="text-slate-500 text-lg leading-relaxed max-w-xl">
-                  {item.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+
+                {/* Image Side */}
+                <div className="flex-1 w-full">
+                  <div className="relative group rounded-3xl overflow-hidden bg-slate-100 aspect-video sm:aspect-square lg:aspect-video shadow-2xl border border-white">
+                    <img 
+                      src={item.image} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover transition-transform duration-700 "
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#0090BF]/20 to-transparent opacity-0  transition-opacity" />
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Bottom Highlights */}
         <motion.div
           {...fade}
-          className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-slate-200 pt-16"
+          className="mt-40 grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-slate-200 pt-20"
         >
           {[
-            {
-              icon: Zap,
-              title: "Real-Time Sync",
-              desc: "Live kitchen availability updates across locations.",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Enterprise Security",
-              desc: "SSO-based access control with audit visibility.",
-            },
-            {
-              icon: ArrowRight,
-              title: "Location Agnostic",
-              desc: "Employees move freely between branches.",
-            },
+            { icon: Zap, title: "Real-Time Sync", desc: "Live kitchen availability updates across locations." },
+            { icon: ShieldCheck, title: "Enterprise Security", desc: "SSO-based access control with audit visibility." },
+            { icon: ArrowRight, title: "Location Agnostic", desc: "Employees move freely between branches." },
           ].map((item, i) => (
-            <div key={i} className="space-y-4">
-              <item.icon className="w-6 h-6 text-[#0090BF]" />
-              <h4 className="font-bold text-slate-900 text-lg">
+            <div key={i} className="group p-2">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-[#0090BF] group-hover:text-white transition-all duration-300">
+                <item.icon className="w-6 h-6" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-xl tracking-tight mb-2">
                 {item.title}
               </h4>
-              <p className="text-slate-500 leading-relaxed">{item.desc}</p>
+              <p className="text-slate-500 leading-relaxed text-base">{item.desc}</p>
             </div>
           ))}
         </motion.div>
