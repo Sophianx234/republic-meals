@@ -1,279 +1,451 @@
 'use client';
 
-import { 
-  Menu, X, ArrowRight, ChefHat, Clock, HelpCircle, Plus, 
-  ShieldCheck, Smartphone, Utensils, Heart, Star, 
-  Calendar, Coffee, MapPin, Check 
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from 'react';
+
+import DropdownMenu from '@/components/drop-down-menu';
+import {
+  ArrowRight,
+  CheckCircle2,
+  ChefHat,
+  ClipboardList,
+  Clock,
+  HelpCircle,
+  Plus,
+  ShieldCheck,
+  Smartphone,
+  Utensils,
+  UtensilsCrossed
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function ProfessionalLandingPage() {
+export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
+
   return (
-    <div className="min-h-screen bg-[#FDFCF9] font-sans text-[#2D2926] selection:bg-[#0090BF] selection:text-white">
+    // Added scroll-smooth here
+    <div className="scroll-smooth min-h-screen bg-white font-sans text-slate-900 selection:bg-[#0090BF] selection:text-white">
       
-      {/* --- NAVIGATION: Floating Minimalist --- */}
-      <nav className="fixed w-full z-50 pt-6 px-4">
-        <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md border border-white/40 rounded-full shadow-sm px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-               <div className="bg-[#0090BF] p-1.5 rounded-lg">
-                  <Utensils className="w-5 h-5 text-white" />
-               </div>
-               <h1 className="text-xl font-serif italic font-semibold tracking-tight">
-                 Republic<span className="text-[#0090BF] font-sans not-italic">Lunch</span>
-               </h1>
+      {/* --- NAVIGATION --- */}
+      <DropdownMenu mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
+      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            {/* Brand */}
+            <div className="flex items-center gap-3 group cursor-pointer">
+              <div className="relative">
+                   <Image
+                     src="/images/rb.png"
+                     alt="RepublicLunch Logo"
+                     width={40}
+                     height={40}
+                   />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#0090BF] transition">
+                  Republic<span className="text-[#0090BF]">Lunch</span>
+                </h1>
+                <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase mt-0.5">Staff Welfare Portal</span>
+              </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-              <a href="#process" className="hover:text-[#0090BF] transition">How it Works</a>
-              <a href="#menu" className="hover:text-[#0090BF] transition">The Table</a>
-              <a href="#faq" className="hover:text-[#0090BF] transition">Questions</a>
-              <Link href="/login" className="bg-[#0090BF] text-white px-6 py-2.5 rounded-full hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95">
-                Staff Login
+            {/* Desktop Links */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">Guidelines</a>
+              <a href="#menu-preview" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">Weekly Menu</a>
+              <a href="#faq" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">Support</a>
+            </div>
+
+            {/* CTA */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="hidden md:flex items-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg"
+              >
+                Staff Login <ArrowRight className="w-4 h-4" />
               </Link>
+
+              <button
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className="md:hidden inline-flex items-center justify-center rounded-lg border border-slate-200 p-2 text-slate-700 hover:bg-slate-100 transition"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <section className="relative pt-40 pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="relative z-10 space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-[#0090BF] text-xs font-bold uppercase tracking-widest border border-blue-100">
-              <Heart className="w-3 h-3 fill-current" /> Nourishing the Republic Family
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-50">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/50 border border-blue-200 text-[#0090BF] text-xs font-bold uppercase tracking-wide mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0090BF]"></span>
+              </span>
+              Internal Access Only
             </div>
-            <h1 className="text-6xl lg:text-8xl font-serif italic leading-[0.95] tracking-tight">
-              A balanced meal, <br />
-              <span className="text-[#0090BF] not-italic">served daily.</span>
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.1]">
+              Simplified Lunch <br className="hidden md:block" />
+              <span className="text-[#0090BF]">For Every Staff.</span>
             </h1>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-md font-light">
-              Skip the rush and focus on what you do best. We handle the cooking, you handle the banking. 100% subsidized, 100% fresh.
+            <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+              Automating staff welfare for efficiency. Select your weekly subsidized meals 
+              seamlessly and help us reduce food waste across our offices.
             </p>
-            <div className="flex flex-col sm:flex-row items-start gap-4">
-               <Link href="/login" className="group bg-[#2D2926] text-white px-10 py-5 rounded-full font-bold text-lg flex items-center gap-3 hover:bg-black transition-all">
-                 Order My Lunch <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-               </Link>
-               <div className="flex -space-x-3 items-center ml-2">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                      <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="Staff" />
-                    </div>
-                  ))}
-                  <span className="pl-6 text-sm text-slate-400 italic">500+ staff members on board</span>
-               </div>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-xl shadow-blue-900/10">
+                Enter Portal
+              </Link>
             </div>
           </div>
 
-          {/* Pinterest Visual Grid */}
-          <div className="relative grid grid-cols-12 gap-4 h-[600px]">
-            <div className="col-span-7 h-full">
-              <img src="https://images.unsplash.com/photo-1543332164-6e82f355badc?q=80&w=1000" 
-                className="w-full h-full object-cover rounded-[3rem] shadow-2xl" alt="Fresh salad" />
-            </div>
-            <div className="col-span-5 space-y-4 h-full">
-              <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800" 
-                className="w-full h-2/3 object-cover rounded-[3rem] shadow-xl" alt="Chef cooking" />
-              <div className="h-1/3 bg-[#FFB81C] rounded-[3rem] p-8 flex flex-col justify-center">
-                <p className="text-[#2D2926] font-serif text-xl italic leading-tight">“The easiest part of my workday.”</p>
-                <p className="text-[#2D2926]/60 text-xs font-bold uppercase mt-4 tracking-widest">— Ama, Operations</p>
-              </div>
+          {/* Hero Visual */}
+          <div className="relative mx-auto max-w-5xl">
+            <div className="rounded-2xl bg-white p-2 shadow-2xl border border-slate-200/60">
+               <div className="rounded-xl overflow-hidden bg-slate-100 relative aspect-[16/9] md:aspect-[21/9]">
+                  <img 
+                    src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=2000" 
+                    alt="Food Spread" 
+                    className="w-full h-full object-cover opacity-90"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-8">
+                     <div className="text-white">
+                        <p className="font-bold text-lg">Ebankese Kitchen Specials</p>
+                        <p className="text-slate-300 text-sm">Managed by the Welfare Department</p>
+                     </div>
+                  </div>
+               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* --- PROCESS SECTION: The "3-Step" Professional Look --- */}
-      <section id="process" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-12">
+      {/* --- STATS BAR --- */}
+      <div className="border-y border-slate-100 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { 
-                icon: <Calendar className="w-8 h-8 text-[#0090BF]" />, 
-                title: "View the Menu", 
-                desc: "Every Sunday, we release the upcoming week's rotation of local and continental dishes." 
-              },
-              { 
-                icon: <Check className="w-8 h-8 text-[#FFB81C]" />, 
-                title: "Claim Your Plate", 
-                desc: "Select your favorites before 9:00 AM daily. It takes less than 30 seconds." 
-              },
-              { 
-                icon: <Coffee className="w-8 h-8 text-[#0090BF]" />, 
-                title: "Enjoy & Connect", 
-                desc: "Pick up your meal at the canteen and enjoy a well-deserved break with your colleagues." 
-              }
-            ].map((step, i) => (
-              <div key={i} className="group p-8 rounded-[2.5rem] bg-[#FDFCF9] border border-transparent hover:border-blue-100 hover:shadow-xl transition-all">
-                <div className="mb-6">{step.icon}</div>
-                <h3 className="text-2xl font-serif font-bold mb-4">{step.title}</h3>
-                <p className="text-slate-500 font-light leading-relaxed">{step.desc}</p>
+              { label: "Onboarded Staff", value: "800+", icon: <CheckCircle2 className="w-5 h-5 text-[#FFB81C]" /> },
+              { label: "Welfare Subsidy", value: "100%", icon: <ShieldCheck className="w-5 h-5 text-[#FFB81C]" /> },
+              { label: "Order Accuracy", value: "99%", icon: <Utensils className="w-5 h-5 text-[#FFB81C]" /> },
+              { label: "Time Saved", value: "Hrs/Wk", icon: <Clock className="w-5 h-5 text-[#FFB81C]" /> },
+            ].map((stat, idx) => (
+              <div key={idx} className="flex flex-col items-center justify-center text-center space-y-2">
+                <div className="flex items-center gap-2 text-slate-900 font-extrabold text-3xl">
+                  {stat.value}
+                </div>
+                <div className="flex items-center gap-1.5 text-slate-500 text-sm font-medium">
+                  {stat.icon}
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* --- MENU SECTION (Pinterest Masonry) --- */}
-      <section id="menu" className="py-24 px-6 bg-[#F7F5F0]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div className="space-y-4">
-              <h2 className="text-5xl font-serif italic">What's on the table?</h2>
-              <p className="text-slate-500 italic">Chef-curated meals, balanced for a productive afternoon.</p>
-            </div>
-            <Link href="/menu" className="text-sm font-bold uppercase tracking-[0.2em] text-[#0090BF] border-b-2 border-[#0090BF] pb-1">
-              Full Weekly Rotation
-            </Link>
+      {/* --- FEATURES --- */}
+      {/* Added scroll-mt-20 to prevent header overlap */}
+      <section id="how-it-works" className="scroll-mt-20 py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
+          
+          <div className="text-center max-w-2xl mx-auto">
+             <h2 className="text-3xl font-bold text-slate-900">Standardized Meal Reservations</h2>
+             <p className="text-slate-500 mt-4 text-lg">Our internal protocol ensures every staff member receives their choice of meal without delays.</p>
           </div>
 
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
-            {/* Card 1 */}
-            <div className="break-inside-avoid bg-white p-4 rounded-[2.5rem] shadow-sm group cursor-pointer hover:shadow-2xl transition-all duration-500">
-              <div className="rounded-[2rem] overflow-hidden mb-6 aspect-square">
-                <img src="https://images.unsplash.com/photo-1594970921223-289524022bf8?q=80&w=800" className="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="Jollof" />
-              </div>
-              <div className="px-4 pb-4">
-                <span className="text-[10px] font-black tracking-[0.2em] text-[#0090BF] uppercase">Monday Special</span>
-                <h3 className="text-2xl font-serif font-bold mt-1">Republic Jollof</h3>
-                <p className="text-sm text-slate-400 mt-2 font-light">Char-grilled chicken, golden plantain, and our signature spicy shito.</p>
-              </div>
+          {/* Block 1 */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-blue-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <img
+                src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80"
+                alt="Planning"
+                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
+              />
             </div>
-
-            {/* Card 2 - Info Card */}
-            <div className="break-inside-avoid bg-[#2D2926] p-10 rounded-[2.5rem] text-white">
-               <ChefHat className="w-10 h-10 text-[#FFB81C] mb-6" />
-               <h3 className="text-3xl font-serif italic mb-4 leading-tight">Quality is our <br />first ingredient.</h3>
-               <p className="opacity-70 font-light leading-relaxed mb-6 text-sm">We partner only with certified kitchens that meet Republic Bank's strict health and safety standards.</p>
-               <div className="flex items-center gap-2 text-[#FFB81C] text-xs font-bold uppercase tracking-widest">
-                 <ShieldCheck className="w-4 h-4" /> 100% Health Certified
-               </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="break-inside-avoid bg-white p-4 rounded-[2.5rem] shadow-sm group">
-              <div className="rounded-[2rem] overflow-hidden mb-6 aspect-[4/5]">
-                <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800" className="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="Salad" />
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-[#0090BF] text-xs font-bold uppercase tracking-wider rounded-md">
+                <ClipboardList className="w-4 h-4" />
+                Protocol
               </div>
-              <div className="px-4 pb-4">
-                <span className="text-[10px] font-black tracking-[0.2em] text-[#0090BF] uppercase">Healthy Choice</span>
-                <h3 className="text-2xl font-serif font-bold mt-1">Grilled Chicken Salad</h3>
-                <p className="text-sm text-slate-400 mt-2 font-light">Fresh greens, avocado slices, and honey mustard dressing.</p>
-              </div>
+              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
+                Weekly Pre-Selection.<br />
+                <span className="text-slate-900">Automated Logistics.</span>
+              </h3>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                Log in every Sunday to view the upcoming menu. Select your meals for the 
+                entire business week to ensure the kitchen captures your preference.
+              </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* --- STATS / VALUES --- */}
-      <section className="py-24 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12">
-          {[
-            { label: "Staff Served Daily", val: "500+" },
-            { label: "Food Waste Reduction", val: "94%" },
-            { label: "Partner Kitchens", val: "06" },
-            { label: "Subsidized Cost", val: "100%" },
-          ].map((stat, i) => (
-            <div key={i} className="text-center space-y-2">
-              <p className="text-4xl font-serif italic font-bold text-[#0090BF]">{stat.val}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* --- FAQ SECTION --- */}
-      <section id="faq" className="py-24 bg-white px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16 space-y-4">
-             <h2 className="text-4xl font-serif italic">Common Questions</h2>
-             <p className="text-slate-400 font-light">Everything you need to know about the welfare lunch portal.</p>
-          </div>
-          <div className="space-y-4">
-            {[
-              { q: "What is the daily cutoff time?", a: "Orders must be placed or modified before 9:00 AM on the day of service to allow our catering partners to prepare fresh meals." },
-              { q: "Is the menu the same for every branch?", a: "Currently, this service is available for staff at the Ebankese Head Office. We are working on expanding to our regional branches soon." },
-              { q: "How do I report an issue with my meal?", a: "Quality is our priority. You can use the 'Feedback' tab inside the dashboard to report any concerns directly to the Welfare Dept." }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-[#FDFCF9] rounded-[2rem] overflow-hidden border border-transparent hover:border-blue-50 transition-all">
-                <button 
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full flex justify-between items-center p-8 text-left"
-                >
-                  <span className="text-lg font-medium">{item.q}</span>
-                  <div className={`p-2 rounded-full bg-white transition-transform ${openFaq === idx ? 'rotate-45' : ''}`}>
-                    <Plus className="w-4 h-4" />
-                  </div>
-                </button>
-                {openFaq === idx && (
-                  <div className="px-8 pb-8 text-slate-500 leading-relaxed font-light italic">
-                    {item.a}
-                  </div>
-                )}
+          {/* Block 2 (Reverse) */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6 order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider rounded-md">
+                <Clock className="w-4 h-4" />
+                Deadlines
               </div>
-            ))}
+              <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
+                9:00 AM Cutoff.<br />
+                <span className="text-slate-900">Reduced Food Waste.</span>
+              </h3>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                To maintain operational efficiency, all daily modifications must be completed 
+                before the morning cutoff. This allows our vendors to prep with precision.
+              </p>
+            </div>
+            <div className="relative group order-1 lg:order-2">
+              <div className="absolute -inset-4 bg-orange-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <img
+                src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80"
+                alt="Flexibility"
+                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* --- PRE-FOOTER CTA --- */}
-      <section className="px-4 pb-20">
-        <div className="max-w-7xl mx-auto bg-[#0090BF] rounded-[3.5rem] p-12 lg:p-24 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
-           {/* Decorative background element */}
-           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-           
-           <div className="relative z-10 max-w-2xl mx-auto space-y-8">
-             <h2 className="text-4xl lg:text-6xl font-serif italic leading-tight">Ready to enjoy your next meal?</h2>
-             <p className="text-blue-50/80 text-lg font-light">Join your colleagues and start planning your week today. It’s simple, fast, and exclusive to you.</p>
-             <Link href="/login" className="inline-flex items-center gap-3 bg-white text-[#0090BF] px-12 py-5 rounded-full font-bold text-lg hover:bg-[#FFB81C] hover:text-[#2D2926] transition-all hover:scale-105 active:scale-95">
-               Log in with Staff ID <ArrowRight className="w-5 h-5" />
+      {/* --- MENU SNEAK PEEK --- */}
+      {/* Added scroll-mt-20 to prevent header overlap */}
+      <section id="menu-preview" className="scroll-mt-20 py-24 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+             <div>
+               <span className="text-[#FFB81C] font-bold tracking-wider text-sm uppercase">Kitchen Rotation</span>
+               <h2 className="text-3xl font-bold text-slate-900 mt-2">Standard Menu Preview</h2>
+             </div>
+             <Link href="/login" className="text-[#0090BF] font-bold hover:underline flex items-center gap-2">
+                Login to book <ArrowRight className="w-4 h-4"/>
              </Link>
+           </div>
+
+           <div className="grid md:grid-cols-3 gap-8">
+             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
+               <div className="h-56 overflow-hidden relative">
+                 <div className="absolute top-4 left-4 bg-[#FFB81C] text-white text-xs font-bold px-3 py-1 rounded-full z-10">LOCAL SPECIAL</div>
+                 <img src="https://images.unsplash.com/photo-1594970921223-289524022bf8?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Jollof" />
+               </div>
+               <div className="p-6">
+                 <h3 className="text-lg font-bold text-slate-900">Republic Jollof</h3>
+                 <p className="text-slate-500 text-sm mt-1">Garnished with choice proteins.</p>
+               </div>
+             </div>
+
+             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
+               <div className="h-56 overflow-hidden relative">
+                 <div className="absolute top-4 left-4 bg-[#0090BF] text-white text-xs font-bold px-3 py-1 rounded-full z-10">CONTINENTAL</div>
+                 <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Salad" />
+               </div>
+               <div className="p-6">
+                 <h3 className="text-lg font-bold text-slate-900">Grilled Choice</h3>
+                 <p className="text-slate-500 text-sm mt-1">Healthy greens and lean protein.</p>
+               </div>
+             </div>
+
+             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
+               <div className="h-56 overflow-hidden relative">
+                 <div className="absolute top-4 left-4 bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full z-10">WEEKEND FAVORITE</div>
+                 <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Banku" />
+               </div>
+               <div className="p-6">
+                 <h3 className="text-lg font-bold text-slate-900">Traditional Banku</h3>
+                 <p className="text-slate-500 text-sm mt-1">Freshly served with Tilapia.</p>
+               </div>
+             </div>
            </div>
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer className="bg-[#2D2926] text-[#FDFCF9] py-20 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-          <div className="col-span-1 lg:col-span-2 space-y-6">
-            <h2 className="text-3xl font-serif italic tracking-tight">Republic<span className="text-[#0090BF] not-italic">Lunch</span></h2>
-            <p className="text-slate-400 font-light max-w-sm leading-relaxed">
-              The official staff welfare application for Republic Bank Ghana. Supporting our team through quality nutrition and seamless technology.
-            </p>
-            <div className="flex gap-4">
-               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0090BF] transition cursor-pointer">
-                 <Smartphone className="w-5 h-5" />
-               </div>
-               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0090BF] transition cursor-pointer">
-                 <HelpCircle className="w-5 h-5" />
-               </div>
+      {/* --- FAQ SECTION --- */}
+      {/* Added scroll-mt-20 to prevent header overlap */}
+      <section id="faq" className="scroll-mt-20 py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 h-full min-h-[500px] hidden lg:block group">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0090BF]/80 to-transparent z-10 opacity-60"></div>
+              <img 
+                src="/images/happy-2.jpg" 
+                alt="Welfare Support" 
+                className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105"
+              />
+              <div className="absolute bottom-8 left-8 z-20 text-white max-w-xs">
+                <div className="bg-[#FFB81C] text-[#0033A1] text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">
+                  Internal Support
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Need Assistance?</h3>
+                <p className="text-blue-50 text-sm">
+                  Contact the Welfare Unit via <span className="font-bold text-white">Ext 4050</span> for login issues.
+                </p>
+              </div>
             </div>
+
+            <div className="pt-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">
+                Portal <span className="text-[#0090BF]">Guidelines</span>
+              </h2>
+              
+              <div className="space-y-4">
+                {[
+                  { q: "Who is eligible for this service?", a: "This portal is strictly for active Republic Bank Ghana staff members. Your Staff ID is required for access." },
+                  { q: "How is the subsidy applied?", a: "The subsidy is automatically applied to one meal per day as part of the bank's welfare package. No manual payment is required on the app." },
+                  { q: "Can I change my order on the day?", a: "Yes, but only before the 9:00 AM cutoff time. After this, all orders are sent to vendors for final preparation." },
+                  { q: "What if I'm working from a different branch?", a: "The system allows you to select your current location for the day to ensure your meal is delivered to the correct office." }
+                ].map((item, idx) => (
+                  <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden">
+                    <button 
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full flex justify-between items-center p-5 text-left bg-slate-50 hover:bg-slate-100 transition group"
+                    >
+                      <span className="font-bold text-slate-800 group-hover:text-[#0090BF]">{item.q}</span>
+                      <Plus className={`w-5 h-5 text-slate-400 transition-transform ${openFaq === idx ? 'rotate-45 text-[#0090BF]' : ''}`} />
+                    </button>
+                    <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <div className="p-5 pt-0">
+                        <p className="text-slate-600 leading-relaxed border-t border-slate-100 pt-4">{item.a}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- CTA SECTION --- */}
+      <section className="relative w-full py-24 overflow-hidden bg-slate-900">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0090BF]/95 to-[#002a85]/90" />
+        </div>
+
+        <section className=" bg-white">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative overflow-hidden rounded-3xl bg-slate-900 shadow-2xl">
+      
+      {/* Decorative Background Elements */}
+      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-[#FFB81C] rounded-full mix-blend-multiply filter blur-[100px] opacity-10"></div>
+
+      <div className="relative grid lg:grid-cols-2 items-center">
+        
+        {/* Left Side: Content */}
+        <div className="p-8 md:p-16 lg:p-20 space-y-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold uppercase tracking-widest">
+            <ShieldCheck className="w-4 h-4 text-[#FFB81C]" />
+            Secure Staff Access
           </div>
           
-          <div className="space-y-6">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFB81C]">Navigation</h4>
-            <ul className="space-y-4 text-sm font-light text-slate-400">
-              <li><a href="#" className="hover:text-white transition">Weekly Menu</a></li>
-              <li><a href="#" className="hover:text-white transition">How to Order</a></li>
-              <li><a href="#" className="hover:text-white transition">Welfare Policy</a></li>
-              <li><a href="#" className="hover:text-white transition">Help Desk</a></li>
-            </ul>
+          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight">
+            Nourishing Our <br />
+            <span className="text-[#0090BF]">Republic Family.</span>
+          </h2>
+          
+          <p className="text-blue-100/80 text-lg leading-relaxed max-w-md">
+            Your subsidized weekly meal is just a click away. Use your standard Staff ID to access the dashboard and reserve your plate.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <Link 
+              href="/login" 
+              className="group flex items-center justify-center gap-3 bg-[#0090BF] hover:bg-white text-white hover:text-[#0090BF] px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-500/20"
+            >
+              Portal Login
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+          
+          <p className="text-xs text-slate-500 font-medium">
+            *Orders must be placed before 9:00 AM daily.
+          </p>
+        </div>
+
+        {/* Right Side: Professional Image with Gradient Overlay */}
+        <div className="relative h-64 lg:h-full min-h-[400px] overflow-hidden">
+          <img 
+            src="/images/happy-9.jpg" 
+            alt="Corporate Dining" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Subtle gradient overlay to blend image into the dark card */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent hidden lg:block" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent lg:hidden" />
+          
+          {/* Floating Stat Card */}
+          <div className="absolute bottom-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl hidden sm:block">
+            <div className="flex items-center gap-3">
+              <div className="bg-[#FFB81C] p-2 rounded-lg">
+                <UtensilsCrossed className="w-5 h-5 text-slate-900" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm">Freshly Prepped</p>
+                <p className="text-blue-200 text-xs">Daily by Certified Vendors</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-slate-900 text-white border-t border-slate-800 pt-16 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2">
+               <div className="flex items-center gap-2 mb-4">
+                  <Image src="/images/rb.png" alt="Logo" width={40} height={40}/>
+                  <span className="font-bold text-xl">Republic<span className="text-[#0090BF]">Lunch</span></span>
+               </div>
+               <p className="text-slate-400 max-w-sm leading-relaxed">
+                 Internal Staff Welfare Portal. Dedicated to the health and productivity of the Republic Bank workforce.
+               </p>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Resources</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#" className="hover:text-[#0090BF]">Welfare Guidelines</a></li>
+                <li><a href="#" className="hover:text-[#0090BF]">Kitchen Hygiene Standards</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-4">Support</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li className="flex items-center gap-2"><HelpCircle className="w-4 h-4"/> Help Desk Ext: 4050</li>
+                <li>welfare@republicghana.com</li>
+              </ul>
+            </div>
           </div>
 
-          <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 flex flex-col justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0090BF] mb-2">Developed by</p>
-              <p className="text-xl font-serif italic">Sophian Abdul Rahman</p>
-              <p className="text-slate-500 text-xs mt-1">Software Engineer | NSS IT Dept</p>
-            </div>
-            <div className="mt-8 pt-4 border-t border-white/5 text-[10px] text-slate-500 uppercase tracking-widest flex justify-between">
-              <span>© 2026</span>
-              <span>Republic Bank GH</span>
+          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 text-xs">
+              &copy; {new Date().getFullYear()} Republic Bank Ghana. Internal Systems.
+            </p>
+            <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+               <span>Developed by</span>
+               <span className="text-white font-bold">Sophian Abdul Rahman</span>
+               <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
+               <span>IT NSS</span>
             </div>
           </div>
         </div>

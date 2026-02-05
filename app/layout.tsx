@@ -41,11 +41,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-
   return (
-    <html lang="en" suppressHydrationWarning>
+    // ADD scroll-smooth HERE
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <body className={`${geist.className} font-sans antialiased`}>
-        {/* <SessionProvider session={session}>{children}</SessionProvider> */}
         <div>{children}</div>
       </body>
     </html>
