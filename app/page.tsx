@@ -2,6 +2,7 @@
 
 import { Menu, X } from "lucide-react";
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import DropdownMenu from '@/components/drop-down-menu';
 import {
@@ -20,6 +21,39 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Professional Animation Variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+};
+
+const staggerContainer = {
+  animate: { transition: { staggerChildren: 0.1 } }
+};
+
+// Parent container variants to stagger the text and buttons
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+// Item variants for the text elements
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
+  },
+};
+
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,7 +63,6 @@ export default function LandingPage() {
   };
 
   return (
-    // Added scroll-smooth here
     <div className="scroll-smooth min-h-screen bg-white font-sans text-slate-900 selection:bg-[#0090BF] selection:text-white">
       
       {/* --- NAVIGATION --- */}
@@ -37,15 +70,13 @@ export default function LandingPage() {
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            {/* Brand */}
-            <div className="flex items-center gap-3 group cursor-pointer">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 group cursor-pointer"
+            >
               <div className="relative">
-                   <Image
-                     src="/images/rb.png"
-                     alt="RepublicLunch Logo"
-                     width={40}
-                     height={40}
-                   />
+                <Image src="/images/rb.png" alt="RepublicLunch Logo" width={40} height={40} />
               </div>
               <div className="flex flex-col">
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#0090BF] transition">
@@ -53,17 +84,28 @@ export default function LandingPage() {
                 </h1>
                 <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase mt-0.5">Staff Welfare Portal</span>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">Guidelines</a>
-              <a href="#menu-preview" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">Weekly Menu</a>
-              <a href="#faq" className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition">Support</a>
+              {['Guidelines', 'Weekly Menu', 'Support'].map((item, i) => (
+                <motion.a 
+                  key={item}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                  className="text-sm font-medium text-slate-600 hover:text-[#0090BF] transition"
+                >
+                  {item}
+                </motion.a>
+              ))}
             </div>
 
-            {/* CTA */}
-            <div className="flex items-center gap-3">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3"
+            >
               <Link
                 href="/login"
                 className="hidden md:flex items-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg"
@@ -74,61 +116,91 @@ export default function LandingPage() {
               <button
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
                 className="md:hidden inline-flex items-center justify-center rounded-lg border border-slate-200 p-2 text-slate-700 hover:bg-slate-100 transition"
-                aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-50">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#f8fafc] via-white to-[#eef6fb]">
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#0090BF]/20 blur-3xl" 
+        />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/50 border border-blue-200 text-[#0090BF] text-xs font-bold uppercase tracking-wide mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0090BF]"></span>
-              </span>
-              Internal Access Only
-            </div>
-            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.1]">
-              Simplified Lunch <br className="hidden md:block" />
-              <span className="text-[#0090BF]">For Every Staff.</span>
-            </h1>
-            <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto">
-              Automating staff welfare for efficiency. Select your weekly subsidized meals 
-              seamlessly and help us reduce food waste across our offices.
-            </p>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-36 pb-28">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0090BF] hover:bg-[#007EA8] text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-xl shadow-blue-900/10">
-                Enter Portal
-              </Link>
-            </div>
-          </div>
+            <motion.div 
+              initial="initial"
+              animate="animate"
+              variants={staggerContainer}
+            >
+              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur border border-slate-200 text-xs font-semibold tracking-wide text-[#0090BF] mb-6">
+                <span className="w-2 h-2 rounded-full bg-[#0090BF] animate-pulse" />
+                Internal Staff Platform
+              </motion.div>
 
-          {/* Hero Visual */}
-          <div className="relative mx-auto max-w-5xl">
-            <div className="rounded-2xl bg-white p-2 shadow-2xl border border-slate-200/60">
-               <div className="rounded-xl overflow-hidden bg-slate-100 relative aspect-[16/9] md:aspect-[21/9]">
-                  <img 
-                    src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=2000" 
-                    alt="Food Spread" 
-                    className="w-full h-full object-cover opacity-90"
+              <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.05] mb-6">
+                Lunch, <br />
+                <span className="text-[#0090BF]">organized.</span>
+                <br />
+                <span className="text-slate-400 font-bold">Effortless.</span>
+              </motion.h1>
+
+              <motion.p variants={fadeInUp} className="max-w-xl text-lg text-slate-600 leading-relaxed mb-10">
+                A smarter way to manage staff meals. Choose weekly subsidized lunches, streamline welfare operations, and cut food waste — all from one portal.
+              </motion.p>
+
+              <motion.div variants={fadeInUp} className="flex items-center gap-4">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-xl bg-[#0090BF] px-8 py-4 text-white font-semibold text-lg shadow-xl shadow-blue-900/15 hover:bg-[#007EA8] transition active:scale-95"
+                >
+                  Enter Portal
+                </Link>
+                <span className="text-sm text-slate-400">Secure • Internal Use Only</span>
+              </motion.div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/60">
+                <img src="/images/food-11.jpg" alt="Staff Lunch" className="w-full h-[420px] object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                <div className="absolute bottom-6 left-6 text-white">
+                  <p className="font-semibold text-lg">Today’s Kitchen Selection</p>
+                  <p className="text-sm text-slate-200">Welfare Department • Ebankese Kitchen</p>
+                </div>
+              </div>
+
+              <motion.div 
+                initial={{ x: 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+                className="absolute -bottom-10 -left-10 bg-white/80 backdrop-blur-lg border border-slate-200 rounded-2xl shadow-xl p-5 w-64"
+              >
+                <p className="text-sm font-semibold text-slate-900 mb-1">Weekly Meal Cycle</p>
+                <p className="text-xs text-slate-500 mb-3">Pre-selected & subsidized</p>
+                <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: "75%" }}
+                    transition={{ duration: 1.5, delay: 1 }}
+                    className="h-full bg-[#0090BF]" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-8">
-                     <div className="text-white">
-                        <p className="font-bold text-lg">Ebankese Kitchen Specials</p>
-                        <p className="text-slate-300 text-sm">Managed by the Welfare Department</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
+                </div>
+                <p className="mt-2 text-xs text-slate-400">75% meals confirmed</p>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -136,171 +208,159 @@ export default function LandingPage() {
       {/* --- STATS BAR --- */}
       <div className="border-y border-slate-100 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
             {[
               { label: "Onboarded Staff", value: "800+", icon: <CheckCircle2 className="w-5 h-5 text-[#FFB81C]" /> },
               { label: "Welfare Subsidy", value: "100%", icon: <ShieldCheck className="w-5 h-5 text-[#FFB81C]" /> },
               { label: "Order Accuracy", value: "99%", icon: <Utensils className="w-5 h-5 text-[#FFB81C]" /> },
               { label: "Time Saved", value: "Hrs/Wk", icon: <Clock className="w-5 h-5 text-[#FFB81C]" /> },
             ].map((stat, idx) => (
-              <div key={idx} className="flex flex-col items-center justify-center text-center space-y-2">
-                <div className="flex items-center gap-2 text-slate-900 font-extrabold text-3xl">
-                  {stat.value}
-                </div>
+              <motion.div key={idx} variants={fadeInUp} className="flex flex-col items-center justify-center text-center space-y-2">
+                <div className="flex items-center gap-2 text-slate-900 font-extrabold text-3xl">{stat.value}</div>
                 <div className="flex items-center gap-1.5 text-slate-500 text-sm font-medium">
                   {stat.icon}
                   {stat.label}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* --- FEATURES --- */}
-      {/* Added scroll-mt-20 to prevent header overlap */}
       <section id="how-it-works" className="scroll-mt-20 py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
-          
-          <div className="text-center max-w-2xl mx-auto">
-             <h2 className="text-3xl font-bold text-slate-900">Standardized Meal Reservations</h2>
-             <p className="text-slate-500 mt-4 text-lg">Our internal protocol ensures every staff member receives their choice of meal without delays.</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto"
+          >
+            <h2 className="text-3xl font-bold text-slate-900">Standardized Meal Reservations</h2>
+            <p className="text-slate-500 mt-4 text-lg">Our internal protocol ensures every staff member receives their choice of meal without delays.</p>
+          </motion.div>
 
           {/* Block 1 */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+            className="grid lg:grid-cols-2 gap-16 items-center"
+          >
             <div className="relative group">
               <div className="absolute -inset-4 bg-blue-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <img
-                src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80"
-                alt="Planning"
-                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
-              />
+              <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Planning" className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover" />
             </div>
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-[#0090BF] text-xs font-bold uppercase tracking-wider rounded-md">
-                <ClipboardList className="w-4 h-4" />
-                Protocol
+                <ClipboardList className="w-4 h-4" /> Protocol
               </div>
               <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
                 Weekly Pre-Selection.<br />
                 <span className="text-slate-900">Automated Logistics.</span>
               </h3>
               <p className="text-slate-600 text-lg leading-relaxed">
-                Log in every Sunday to view the upcoming menu. Select your meals for the 
-                entire business week to ensure the kitchen captures your preference.
+                Log in every Sunday to view the upcoming menu. Select your meals for the entire business week to ensure the kitchen captures your preference.
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Block 2 (Reverse) */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+            className="grid lg:grid-cols-2 gap-16 items-center"
+          >
             <div className="space-y-6 order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider rounded-md">
-                <Clock className="w-4 h-4" />
-                Deadlines
+                <Clock className="w-4 h-4" /> Deadlines
               </div>
               <h3 className="text-4xl font-extrabold text-[#0090BF] tracking-tight">
                 9:00 AM Cutoff.<br />
                 <span className="text-slate-900">Reduced Food Waste.</span>
               </h3>
               <p className="text-slate-600 text-lg leading-relaxed">
-                To maintain operational efficiency, all daily modifications must be completed 
-                before the morning cutoff. This allows our vendors to prep with precision.
+                To maintain operational efficiency, all daily modifications must be completed before the morning cutoff. This allows our vendors to prep with precision.
               </p>
             </div>
             <div className="relative group order-1 lg:order-2">
               <div className="absolute -inset-4 bg-orange-50 rounded-xl -z-10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <img
-                src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80"
-                alt="Flexibility"
-                className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover"
-              />
+              <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80" alt="Flexibility" className="rounded-lg shadow-xl border border-slate-100 h-[400px] w-full object-cover" />
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* --- MENU SNEAK PEEK --- */}
-      {/* Added scroll-mt-20 to prevent header overlap */}
       <section id="menu-preview" className="scroll-mt-20 py-24 bg-slate-50 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-             <div>
-               <span className="text-[#FFB81C] font-bold tracking-wider text-sm uppercase">Kitchen Rotation</span>
-               <h2 className="text-3xl font-bold text-slate-900 mt-2">Standard Menu Preview</h2>
-             </div>
-             <Link href="/login" className="text-[#0090BF] font-bold hover:underline flex items-center gap-2">
-                Login to book <ArrowRight className="w-4 h-4"/>
-             </Link>
-           </div>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+            <div>
+              <span className="text-[#FFB81C] font-bold tracking-wider text-sm uppercase">Kitchen Rotation</span>
+              <h2 className="text-3xl font-bold text-slate-900 mt-2">Standard Menu Preview</h2>
+            </div>
+            <Link href="/login" className="text-[#0090BF] font-bold hover:underline flex items-center gap-2">
+              Login to book <ArrowRight className="w-4 h-4"/>
+            </Link>
+          </div>
 
-           <div className="grid md:grid-cols-3 gap-8">
-             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
-               <div className="h-56 overflow-hidden relative">
-                 <div className="absolute top-4 left-4 bg-[#FFB81C] text-white text-xs font-bold px-3 py-1 rounded-full z-10">LOCAL SPECIAL</div>
-                 <img src="https://images.unsplash.com/photo-1594970921223-289524022bf8?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Jollof" />
-               </div>
-               <div className="p-6">
-                 <h3 className="text-lg font-bold text-slate-900">Republic Jollof</h3>
-                 <p className="text-slate-500 text-sm mt-1">Garnished with choice proteins.</p>
-               </div>
-             </div>
-
-             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
-               <div className="h-56 overflow-hidden relative">
-                 <div className="absolute top-4 left-4 bg-[#0090BF] text-white text-xs font-bold px-3 py-1 rounded-full z-10">CONTINENTAL</div>
-                 <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Salad" />
-               </div>
-               <div className="p-6">
-                 <h3 className="text-lg font-bold text-slate-900">Grilled Choice</h3>
-                 <p className="text-slate-500 text-sm mt-1">Healthy greens and lean protein.</p>
-               </div>
-             </div>
-
-             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group cursor-default">
-               <div className="h-56 overflow-hidden relative">
-                 <div className="absolute top-4 left-4 bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full z-10">WEEKEND FAVORITE</div>
-                 <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Banku" />
-               </div>
-               <div className="p-6">
-                 <h3 className="text-lg font-bold text-slate-900">Traditional Banku</h3>
-                 <p className="text-slate-500 text-sm mt-1">Freshly served with Tilapia.</p>
-               </div>
-             </div>
-           </div>
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="grid md:grid-cols-3 gap-8"
+          >
+            {[
+              { title: "Republic Jollof", sub: "Garnished with choice proteins.", img: "https://images.unsplash.com/photo-1594970921223-289524022bf8?auto=format&fit=crop&q=80&w=800", tag: "LOCAL SPECIAL", color: "bg-[#FFB81C]" },
+              { title: "Grilled Choice", sub: "Healthy greens and lean protein.", img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800", tag: "CONTINENTAL", color: "bg-[#0090BF]" },
+              { title: "Traditional Banku", sub: "Freshly served with Tilapia.", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800", tag: "WEEKEND FAVORITE", color: "bg-slate-800" },
+            ].map((item, idx) => (
+              <motion.div key={idx} variants={fadeInUp} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
+                <div className="h-56 overflow-hidden relative">
+                  <div className={`absolute top-4 left-4 text-white text-xs font-bold px-3 py-1 rounded-full z-10 ${item.color}`}>{item.tag}</div>
+                  <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt={item.title} />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-slate-900">{item.title}</h3>
+                  <p className="text-slate-500 text-sm mt-1">{item.sub}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* --- FAQ SECTION --- */}
-      {/* Added scroll-mt-20 to prevent header overlap */}
       <section id="faq" className="scroll-mt-20 py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-            
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 h-full min-h-[500px] hidden lg:block group">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 h-full min-h-[500px] hidden lg:block group"
+            >
               <div className="absolute inset-0 bg-gradient-to-t from-[#0090BF]/80 to-transparent z-10 opacity-60"></div>
-              <img 
-                src="/images/happy-2.jpg" 
-                alt="Welfare Support" 
-                className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105"
-              />
+              <img src="/images/happy-2.jpg" alt="Welfare Support" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" />
               <div className="absolute bottom-8 left-8 z-20 text-white max-w-xs">
-                <div className="bg-[#FFB81C] text-[#0033A1] text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">
-                  Internal Support
-                </div>
+                <div className="bg-[#FFB81C] text-[#0033A1] text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">Internal Support</div>
                 <h3 className="text-2xl font-bold mb-2">Need Assistance?</h3>
-                <p className="text-blue-50 text-sm">
-                  Contact the Welfare Unit via <span className="font-bold text-white">Ext 4050</span> for login issues.
-                </p>
+                <p className="text-blue-50 text-sm">Contact the Welfare Unit via <span className="font-bold text-white">Ext 4050</span> for login issues.</p>
               </div>
-            </div>
+            </motion.div>
 
             <div className="pt-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">
-                Portal <span className="text-[#0090BF]">Guidelines</span>
-              </h2>
-              
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">Portal <span className="text-[#0090BF]">Guidelines</span></h2>
               <div className="space-y-4">
                 {[
                   { q: "Who is eligible for this service?", a: "This portal is strictly for active Republic Bank Ghana staff members. Your Staff ID is required for access." },
@@ -309,18 +369,25 @@ export default function LandingPage() {
                   { q: "What if I'm working from a different branch?", a: "The system allows you to select your current location for the day to ensure your meal is delivered to the correct office." }
                 ].map((item, idx) => (
                   <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden">
-                    <button 
-                      onClick={() => toggleFaq(idx)}
-                      className="w-full flex justify-between items-center p-5 text-left bg-slate-50 hover:bg-slate-100 transition group"
-                    >
+                    <button onClick={() => toggleFaq(idx)} className="w-full flex justify-between items-center p-5 text-left bg-slate-50 hover:bg-slate-100 transition group">
                       <span className="font-bold text-slate-800 group-hover:text-[#0090BF]">{item.q}</span>
                       <Plus className={`w-5 h-5 text-slate-400 transition-transform ${openFaq === idx ? 'rotate-45 text-[#0090BF]' : ''}`} />
                     </button>
-                    <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                      <div className="p-5 pt-0">
-                        <p className="text-slate-600 leading-relaxed border-t border-slate-100 pt-4">{item.a}</p>
-                      </div>
-                    </div>
+                    <AnimatePresence>
+                      {openFaq === idx && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-5 pt-0">
+                            <p className="text-slate-600 leading-relaxed border-t border-slate-100 pt-4">{item.a}</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ))}
               </div>
@@ -330,64 +397,82 @@ export default function LandingPage() {
       </section>
 
       {/* --- CTA SECTION --- */}
-      <section className="relative w-full py-24 overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0090BF]/95 to-[#002a85]/90" />
-        </div>
+  
 
-        <section className=" bg-white">
+<section className="relative w-full py-24 overflow-hidden bg-[#0090BF] ">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="relative overflow-hidden rounded-3xl bg-slate-900 shadow-2xl">
+    <motion.div 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={containerVariants}
+      className="relative overflow-hidden rounded-3xl bg-slate-900 shadow-2xl"
+    >
       
-      {/* Decorative Background Elements */}
-      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-[#FFB81C] rounded-full mix-blend-multiply filter blur-[100px] opacity-10"></div>
+      {/* Decorative Background Elements - Subtle Pulse */}
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.15, 0.1] 
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-[#FFB81C] rounded-full mix-blend-multiply filter blur-[100px]"
+      />
 
       <div className="relative grid lg:grid-cols-2 items-center">
         
         {/* Left Side: Content */}
         <div className="p-8 md:p-16 lg:p-20 space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold uppercase tracking-widest">
+          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold uppercase tracking-widest">
             <ShieldCheck className="w-4 h-4 text-[#FFB81C]" />
             Secure Staff Access
-          </div>
+          </motion.div>
           
-          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight">
+          <motion.h2 variants={itemVariants} className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight">
             Nourishing Our <br />
             <span className="text-[#0090BF]">Republic Family.</span>
-          </h2>
+          </motion.h2>
           
-          <p className="text-blue-100/80 text-lg leading-relaxed max-w-md">
+          <motion.p variants={itemVariants} className="text-blue-100/80 text-lg leading-relaxed max-w-md">
             Your subsidized weekly meal is just a click away. Use your standard Staff ID to access the dashboard and reserve your plate.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 pt-4">
             <Link 
               href="/login" 
-              className="group flex items-center justify-center gap-3 bg-[#0090BF] hover:bg-white text-white hover:text-[#0090BF] px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-500/20"
+              className="group flex items-center justify-center gap-3 bg-[#0090BF] hover:bg-white text-white hover:text-[#0090BF] px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-500/20 active:scale-95"
             >
               Portal Login
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
-          </div>
+          </motion.div>
           
-          <p className="text-xs text-slate-500 font-medium">
+          <motion.p variants={itemVariants} className="text-xs text-slate-500 font-medium">
             *Orders must be placed before 9:00 AM daily.
-          </p>
+          </motion.p>
         </div>
 
         {/* Right Side: Professional Image with Gradient Overlay */}
         <div className="relative h-64 lg:h-full min-h-[400px] overflow-hidden">
-          <img 
+          <motion.img 
+            initial={{ scale: 1.1 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 1.5 }}
             src="/images/happy-9.jpg" 
             alt="Corporate Dining" 
             className="absolute inset-0 w-full h-full object-cover"
           />
-          {/* Subtle gradient overlay to blend image into the dark card */}
+          {/* Subtle gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent hidden lg:block" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent lg:hidden" />
           
-          {/* Floating Stat Card */}
-          <div className="absolute bottom-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl hidden sm:block">
+          {/* Floating Stat Card - Slides in from right */}
+          <motion.div 
+            initial={{ x: 40, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="absolute bottom-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl hidden sm:block"
+          >
             <div className="flex items-center gap-3">
               <div className="bg-[#FFB81C] p-2 rounded-lg">
                 <UtensilsCrossed className="w-5 h-5 text-slate-900" />
@@ -397,14 +482,13 @@ export default function LandingPage() {
                 <p className="text-blue-200 text-xs">Daily by Certified Vendors</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
       </div>
-    </div>
+    </motion.div>
   </div>
 </section>
-      </section>
 
       {/* --- FOOTER --- */}
       <footer className="bg-slate-900 text-white border-t border-slate-800 pt-16 pb-8">
@@ -438,9 +522,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-xs">
-              &copy; {new Date().getFullYear()} Republic Bank Ghana. Internal Systems.
-            </p>
+            <p className="text-slate-500 text-xs">&copy; {new Date().getFullYear()} Republic Bank Ghana. Internal Systems.</p>
             <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
                <span>Developed by</span>
                <span className="text-white font-bold">Sophian Abdul Rahman</span>
