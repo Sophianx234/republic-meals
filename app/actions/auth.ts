@@ -9,27 +9,32 @@ import { redirect } from "next/navigation";
 
 
 export async function signInAction(formData: FormData) {
-  const rawData = {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-    email: formData.get("email") ,
-    password: formData.get("password") ,
+  try {
+    const response = await auth.api.signInEmail({
+      body: { email, password },
+    });
+
+    // If we get here, sign in was successful
+    const role = response.user.role;
+    const destination = role === 'staff' 
+      ? '/staff/launch-menu/meal' 
+      : role === 'admin' 
+        ? '/admin' 
+        : '/restaurant/dashboard';
+
+    // We don't redirect here yet because we are inside a try block
+    return { success: true, redirectTo: destination };
+
+  } catch (error: any) {
+    // Return the error to the client instead of throwing
+    return { 
+      success: false, 
+      message: error.message || "Invalid email or password" 
+    };
   }
-  
-  const data = signinSchema.parse(rawData);
-  const response = await auth.api.signInEmail({
-    body: {email:data.email,password:data.password },
-  })
-  
-
-  if(!response) {
-    return {
-      success: false,
-      message: "Sign in failed",
-
-    }
-  }
-  
-  redirect(`${response.user.role === 'staff' ? '/staff/launch-menu/meal' :response.user.role === 'admin'? '/admin':'/restaurant/dashboard' }`);
 }
 export async function signupAction(formData: FormData) {
   const rawData = {
@@ -198,14 +203,17 @@ export async function resetPasswordAction(values: {
 
   try {
     // Calling the Better Auth Server API to finalize the reset
-    await auth.api.resetPassword({
+    const response = await auth.api.resetPassword({
       body: {
         newPassword: password,
-        token: token,
+        token: token
       },
-      headers: await headers(),
+      headers: await headers()
     });
 
+    if(!response) {
+      return { error: "Failed to reset password. Please try again." };
+    }
     return { success: true };
   } catch (error: any) {
     console.error("Reset Password Error:", error);

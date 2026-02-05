@@ -27,8 +27,9 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false,
     // --- FIX: Add this handler to enable Forget Password ---
-  async sendResetPassword({ user, url }, request) {
+  async sendResetPassword({ user, url, token }, request){
   // Better Auth already provides the user object!
   // Note: user.name is available if it's in your schema
   

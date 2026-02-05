@@ -6,6 +6,7 @@ import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucid
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { resetPasswordAction } from "../actions/auth";
 
 export default function ResetPasswordPage() {
   const [isPending, startTransition] = useTransition();
@@ -18,28 +19,36 @@ export default function ResetPasswordPage() {
   const token = searchParams.get("token"); // Better Auth typically passes this
 
   const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirmPassword") as string;
+  e.preventDefault();
+  setError(null);
+  
+  const formData = new FormData(e.currentTarget);
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  if (password !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
 
-    startTransition(async () => {
-      // Logic: Call your better-auth client or server action here
-      // const { error } = await authClient.resetPassword({ newPassword: password, token });
-      
-      // Simulating success for UI demo:
-      setTimeout(() => {
-        setIsSuccess(true);
-        setTimeout(() => router.push("/login"), 3000);
-      }, 1500);
+  // 2. THIS IS THE FIXED LOGIC
+  startTransition(async () => {
+    // Call the real server action
+    const result = await resetPasswordAction({ 
+      password, 
+      token 
     });
-  };
+
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      setIsSuccess(true);
+      // Wait 3 seconds so the user can see the success message, then redirect
+      setTimeout(() => router.push("/login"), 3000);
+    }
+  });
+};
+
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2 bg-white selection:bg-[#0090BF] selection:text-white">
