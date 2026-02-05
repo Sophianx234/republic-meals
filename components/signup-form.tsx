@@ -73,7 +73,7 @@ export function SignupForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={cn("flex flex-col gap-6", className)}
+      className={cn("flex flex-col pt-8 gap-6", className)}
       {...props}
     >
       <FieldGroup>

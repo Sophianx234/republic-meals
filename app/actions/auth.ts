@@ -154,3 +154,63 @@ export async function updateUserProfile(formData: FormData) {
     return { success: false, error: "Failed to update profile" }
   }
 }
+
+export async function forgotPasswordAction(formData: FormData) {
+  const email = formData.get("email") as string;
+
+  if (!email) {
+    return { error: "Email is required" };
+  }
+
+  try {
+    // Better Auth handles token generation and internal state
+    // Change this line
+const result = await auth.api.requestPasswordReset({
+      body: {
+        email: email.toLowerCase(),
+        redirectTo: "/reset-password", 
+      },
+      headers: await headers(),
+    });
+    return { success: true };
+  } catch (error: any) {
+    // Professional Tip: Don't reveal if an email exists or not 
+    // to prevent user enumeration. Always return success or a generic error.
+    console.error("Forgot Password Error:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+}
+
+
+export async function resetPasswordAction(values: { 
+  password: string; 
+  token: string | null 
+}) {
+  const { password, token } = values;
+
+  if (!token) {
+    return { error: "Reset token is missing." };
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters long." };
+  }
+
+  try {
+    // Calling the Better Auth Server API to finalize the reset
+    await auth.api.resetPassword({
+      body: {
+        newPassword: password,
+        token: token,
+      },
+      headers: await headers(),
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Reset Password Error:", error);
+    return { 
+      error: error.message || "Failed to reset password. The link may have expired." 
+    };
+  }
+}

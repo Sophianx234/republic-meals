@@ -45,7 +45,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
 
   return (
     <form
-      className={cn("flex flex-col gap-6", className)}
+      className={cn("flex flex-col gap-6 pt-8", className)}
       onSubmit={handleSubmit(onSubmit)}
       {...props}
     >
