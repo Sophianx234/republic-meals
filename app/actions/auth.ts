@@ -6,6 +6,7 @@ import { signinSchema, signupSchema } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getSystemSettings } from "./settings";
 
 
 export async function signInAction(formData: FormData) {
@@ -13,23 +14,37 @@ export async function signInAction(formData: FormData) {
   const password = formData.get("password") as string;
 
   try {
+    // 1. Attempt to Sign In
     const response = await auth.api.signInEmail({
       body: { email, password },
     });
 
-    // If we get here, sign in was successful
     const role = response.user.role;
+
+    // 2. Check System Settings (Maintenance Mode)
+    const { settings } = await getSystemSettings();
+
+    // If Maintenance is ON and user is NOT an Admin -> Block them
+    if (settings?.maintenanceMode && role !== 'admin') {
+      // Optional: Force sign-out immediately so they don't have a valid session
+      await auth.api.signOut({ headers: await headers() }); 
+      
+      return { 
+        success: false, 
+        message: "System is currently under maintenance. Please try again later." 
+      };
+    }
+
+    // 3. Determine Redirect Destination
     const destination = role === 'staff' 
       ? '/staff/launch-menu/meal' 
       : role === 'admin' 
         ? '/admin' 
         : '/restaurant/dashboard';
 
-    // We don't redirect here yet because we are inside a try block
     return { success: true, redirectTo: destination };
 
   } catch (error: any) {
-    // Return the error to the client instead of throwing
     return { 
       success: false, 
       message: error.message || "Invalid email or password" 
@@ -37,17 +52,28 @@ export async function signInAction(formData: FormData) {
   }
 }
 export async function signupAction(formData: FormData) {
+  // 1. Check Maintenance Mode FIRST (Fail Fast)
+  const { settings } = await getSystemSettings();
+  
+  // If maintenance is ON, block the signup immediately
+  if (settings?.maintenanceMode) {
+    return {
+      success: false,
+      message: "Registration is currently closed for system maintenance.",
+    };
+  }
+
+  // 2. Extract Data
   const rawData = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
     confirmPassword: String(formData.get("confirm-password") ?? ""),
-    // --- EXTRACT NEW FIELDS ---
     branch: String(formData.get("branch") ?? ""),
     department: String(formData.get("department") ?? ""),
-    // --------------------------
   };
 
+  // 3. Validate with Zod
   const parseResult = signupSchema.safeParse(rawData);
 
   if (!parseResult.success) {
@@ -61,17 +87,15 @@ export async function signupAction(formData: FormData) {
   const data = parseResult.data;
 
   try {
+    // 4. Attempt Sign Up
     const response = await auth.api.signUpEmail({
       body: { 
         email: data.email, 
         password: data.password, 
         name: data.name,
-        // --- PASS TO AUTH ---
-        // Ensure your Better Auth config allows these fields, 
-        // or that your Mongoose schema is set up to capture them.
+        // Ensure your auth schema supports these custom fields
         branch: data.branch,
         department: data.department
-        // --------------------
       },
     });
 
@@ -79,14 +103,18 @@ export async function signupAction(formData: FormData) {
       return { success: false, message: "Sign up failed" };
     }
 
-    // Success redirect
+    // 5. Success Redirect
+    // Note: ensure this path exists in your app
     redirect(`/onboard/${response.user.id}?username=${encodeURIComponent(data.name)}`);
 
   } catch (error) {
-    // If the redirect throws (Next.js behavior), rethrow it
+    // If the redirect throws (Next.js behavior), rethrow it so the redirect actually happens
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
     }
+    // Log the actual error for debugging
+    console.error("Signup Error:", error);
+    
     return { success: false, message: "An error occurred during sign up" };
   }
 }

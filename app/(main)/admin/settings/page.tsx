@@ -4,10 +4,30 @@ import { redirect } from "next/navigation";
 import { getSystemSettings } from "@/app/actions/settings";
 import { Metadata } from "next";
 import { SystemSettings } from "@/components/ui/system-settings";
+import {z} from "zod";
 
 export const metadata: Metadata = {
   title: "System Configuration | Admin",
 };
+
+
+export const settingsSchema = z.object({
+  // Operational
+  isOrderingOpen: z.boolean(),
+  maintenanceMode: z.boolean(),
+  orderCutoffTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+    message: "Must be a valid time (HH:MM)",
+  }),
+
+  // Financial (Use coerce to handle string inputs from HTML forms)
+  mealPrice: z.coerce.number().min(0, "Price cannot be negative"),
+  bankSubsidyPercent: z.coerce.number().min(0).max(100, "Cannot exceed 100%"),
+  staffSubsidyPercent: z.coerce.number().min(0).max(100, "Cannot exceed 100%"),
+
+  // Notifications
+  adminEmails: z.string().optional(),
+});
+export type SettingsValues = z.infer<typeof settingsSchema>;
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({
