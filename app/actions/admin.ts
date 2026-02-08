@@ -11,6 +11,7 @@ import { Issue } from "@/models/issue";
 import { Food } from "@/models/food";
 
 // --- FETCH STAFF ---
+// need to protect and sensitive user input
 export async function getStaffList(query: string = "") {
   try {
     const session = await auth.api.getSession({ headers: await headers() });

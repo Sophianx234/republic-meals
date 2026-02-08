@@ -19,10 +19,11 @@ import { signInAction } from "@/app/actions/auth";
 import { RiseLoader } from "react-spinners";
 import { toast } from "sonner"
 import { Toaster } from "./ui/sonner";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [serverError, setServerError] = useState<string | null>(null);
-
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -31,21 +32,27 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     resolver: zodResolver(signinSchema),
   });
 
-  const onSubmit = async (data: SigninInput) => {
-    try {
-      const formData = new FormData();
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      await signInAction(formData);
-    } catch (err) {
-      setServerError(err.message || "Sign in failed");
-      toast.error("Sign in failed");
-    }
-  };
+ const onSubmit = async (data: SigninInput) => {
+  setServerError(null);
+  const formData = new FormData();
+  formData.append("email", data.email);
+  formData.append("password", data.password);
+
+  const result = await signInAction(formData);
+
+  if (result.success && result.redirectTo) {
+    toast.success("Login successful!");
+    // Use window.location or router.push to avoid the try/catch redirect bug
+    router.push(result.redirectTo); 
+  } else {
+    setServerError(result.message);
+    toast.error(result.message);
+  }
+};
 
   return (
     <form
-      className={cn("flex flex-col gap-6", className)}
+      className={cn("flex flex-col gap-6 pt-8", className)}
       onSubmit={handleSubmit(onSubmit)}
       {...props}
     >
@@ -74,12 +81,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
         <Field>
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
-              href="#"
+            <Link
+              href="/forgot-password"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
           <Input
             id="password"

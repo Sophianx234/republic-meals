@@ -9,27 +9,32 @@ import { redirect } from "next/navigation";
 
 
 export async function signInAction(formData: FormData) {
-  const rawData = {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-    email: formData.get("email") ,
-    password: formData.get("password") ,
+  try {
+    const response = await auth.api.signInEmail({
+      body: { email, password },
+    });
+
+    // If we get here, sign in was successful
+    const role = response.user.role;
+    const destination = role === 'staff' 
+      ? '/staff/launch-menu/meal' 
+      : role === 'admin' 
+        ? '/admin' 
+        : '/restaurant/dashboard';
+
+    // We don't redirect here yet because we are inside a try block
+    return { success: true, redirectTo: destination };
+
+  } catch (error: any) {
+    // Return the error to the client instead of throwing
+    return { 
+      success: false, 
+      message: error.message || "Invalid email or password" 
+    };
   }
-  
-  const data = signinSchema.parse(rawData);
-  const response = await auth.api.signInEmail({
-    body: {email:data.email,password:data.password },
-  })
-  
-
-  if(!response) {
-    return {
-      success: false,
-      message: "Sign in failed",
-
-    }
-  }
-  
-  redirect(`${response.user.role === 'staff' ? '/staff/launch-menu/meal' :response.user.role === 'admin'? '/admin':'/restaurant/dashboard' }`);
 }
 export async function signupAction(formData: FormData) {
   const rawData = {
@@ -152,5 +157,68 @@ export async function updateUserProfile(formData: FormData) {
   } catch (error) {
     console.error("Profile update failed:", error)
     return { success: false, error: "Failed to update profile" }
+  }
+}
+
+export async function forgotPasswordAction(formData: FormData) {
+  const email = formData.get("email") as string;
+
+  if (!email) {
+    return { error: "Email is required" };
+  }
+
+  try {
+    // Better Auth handles token generation and internal state
+    // Change this line
+const result = await auth.api.requestPasswordReset({
+      body: {
+        email: email.toLowerCase(),
+        redirectTo: "/reset-password", 
+      },
+      headers: await headers(),
+    });
+    return { success: true };
+  } catch (error: any) {
+    // Professional Tip: Don't reveal if an email exists or not 
+    // to prevent user enumeration. Always return success or a generic error.
+    console.error("Forgot Password Error:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+}
+
+
+export async function resetPasswordAction(values: { 
+  password: string; 
+  token: string | null 
+}) {
+  const { password, token } = values;
+
+  if (!token) {
+    return { error: "Reset token is missing." };
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters long." };
+  }
+
+  try {
+    // Calling the Better Auth Server API to finalize the reset
+    const response = await auth.api.resetPassword({
+      body: {
+        newPassword: password,
+        token: token
+      },
+      headers: await headers()
+    });
+
+    if(!response) {
+      return { error: "Failed to reset password. Please try again." };
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error("Reset Password Error:", error);
+    return { 
+      error: error.message || "Failed to reset password. The link may have expired." 
+    };
   }
 }
