@@ -6,36 +6,53 @@ export async function proxy(request: NextRequest) {
   const { nextUrl } = request;
   const path = nextUrl.pathname;
 
-  // 1. Fetch the session (Next.js 16 allows Node runtime in proxy!)
+  // 1. Fetch the session
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
+  // --- NEW: Redirect "Already Logged In" Users ---
+  // If user is on /login AND has a session, send them to their role's home
+  if (path === "/login" && session) {
+    const role = session.user.role;
+    
+    // Your custom redirection logic
+    const destination = role === 'staff' 
+      ? '/staff/launch-menu/meal' 
+      : role === 'admin' 
+        ? '/admin' 
+        : '/restaurant/dashboard';
+        
+    return NextResponse.redirect(new URL(destination, request.url));
+  }
+
   // 2. Auth Check: Redirect to login if no session exists
-  if (!session) {
+  // We check 'path !== "/login"' to prevent infinite loops
+  if (!session && path !== "/login") {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 3. Define Role-Based Rules
+  // 3. Define Role-Based Rules for PROTECTED routes
   // Format: "Path Prefix": ["Allowed Roles"]
   const roleRules = {
     "/admin": ["admin"],
-    "/catering": ["catering", "kitchen"], // Example roles for catering
-    "/staff": ["staff"],        // Example: Staff can access staff pages
+    "/restaurant": ["catering", "kitchen"], 
+    "/staff": ["staff",'admin'],       
   };
 
-  // 4. Check if the current path is protected by a rule
+  // 4. Find matching rule for current path
   const matchedRule = Object.keys(roleRules).find((route) => 
     path.startsWith(route)
   );
 
-  if (matchedRule) {
+  // 5. Authorization Check
+  if (matchedRule && session) {
+    // TypeScript fix: assert key type
     const allowedRoles = roleRules[matchedRule as keyof typeof roleRules];
-    const userRole = session.user.role; // Ensure 'role' is in your Better Auth schema
+    const userRole = session.user.role;
 
-    // 5. Authorization Check: Redirect if role is not allowed
     if (!allowedRoles.includes(userRole)) {
-      // Redirect unauthorized users to a safe page (e.g., dashboard or 403)
+      // User has session but wrong role -> 403 / unauthorized
       return NextResponse.redirect(new URL("/unauthorized", request.url));
     }
   }
@@ -45,10 +62,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Apply to protected routes only
+  // Apply to protected routes AND the login page
   matcher: [
+    "/login",                // <--- Don't forget this!
     "/staff/:path*", 
     "/admin/:path*", 
-    "/catering/:path*"
+    "/restaurant/:path*"     // Updated to match your redirect logic
   ],
 };

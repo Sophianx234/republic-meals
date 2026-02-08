@@ -147,6 +147,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       
       {/* FIXED: Removed 'mx-4' so icons fit when collapsed */}
       <SidebarContent>
+        {/* SCENARIO C: ADMIN VIEW */}
+        {role === "admin" && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {NAV_ITEMS.admin.map((item) => {
+                  // FIX: Use strict equality '===' to avoid selecting multiple links
+                  const isActive = pathname === item.url 
+                  
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton 
+                        asChild 
+                        tooltip={item.name}
+                        isActive={isActive}
+                        className={isActive ? "!bg-[#0090BF] !text-white font-medium hover:!bg-[#0090BF]/90" : ""}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className={isActive ? "!text-white" : ""} />
+                          <span>{item.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         {/* SCENARIO A: STAFF VIEW */}
         {role === "staff" || role === "admin" && (
            <NavMain items={NAV_ITEMS.staff} />
@@ -183,36 +213,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         )}
 
-        {/* SCENARIO C: ADMIN VIEW */}
-        {role === "admin" && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Administration</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {NAV_ITEMS.admin.map((item) => {
-                  // FIX: Use strict equality '===' to avoid selecting multiple links
-                  const isActive = pathname === item.url 
-                  
-                  return (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton 
-                        asChild 
-                        tooltip={item.name}
-                        isActive={isActive}
-                        className={isActive ? "!bg-[#0090BF] !text-white font-medium hover:!bg-[#0090BF]/90" : ""}
-                      >
-                        <Link href={item.url}>
-                          <item.icon className={isActive ? "!text-white" : ""} />
-                          <span>{item.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        
         
       </SidebarContent>
 
