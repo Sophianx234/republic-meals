@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, Suspense } from "react"; // 1. Import Suspense
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { resetPasswordAction } from "../actions/auth";
 
-export default function ResetPasswordPage() {
+// 2. Rename your main logic to "ResetForm" (or similar)
+function ResetForm() {
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -16,40 +16,127 @@ export default function ResetPasswordPage() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token"); // Better Auth typically passes this
+  const token = searchParams.get("token"); 
 
   const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setError(null);
-  
-  const formData = new FormData(e.currentTarget);
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
+    e.preventDefault();
+    setError(null);
+    
+    const formData = new FormData(e.currentTarget);
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
 
-  if (password !== confirmPassword) {
-    setError("Passwords do not match.");
-    return;
-  }
-
-  // 2. THIS IS THE FIXED LOGIC
-  startTransition(async () => {
-    // Call the real server action
-    const result = await resetPasswordAction({ 
-      password, 
-      token 
-    });
-
-    if (result?.error) {
-      setError(result.error);
-    } else {
-      setIsSuccess(true);
-      // Wait 3 seconds so the user can see the success message, then redirect
-      setTimeout(() => router.push("/login"), 3000);
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
     }
-  });
-};
 
+    startTransition(async () => {
+      const result = await resetPasswordAction({ 
+        password, 
+        token 
+      });
 
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        setIsSuccess(true);
+        setTimeout(() => router.push("/login"), 3000);
+      }
+    });
+  };
+
+  return (
+    <div className="flex flex-1 items-center justify-center">
+      <div className="w-full max-w-xs">
+        <AnimatePresence mode="wait">
+          {!isSuccess ? (
+            <motion.div
+              key="reset-form"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold tracking-tighter text-slate-900">Set New Password</h2>
+                <p className="text-slate-500 mt-2">Choose a strong password to secure your account.</p>
+              </div>
+
+              <form onSubmit={handleReset} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500">New Password</label>
+                  <div className="relative">
+                    <input 
+                      name="password"
+                      type={showPassword ? "text" : "password"} 
+                      required 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0090BF]/20 focus:border-[#0090BF] outline-none transition-all"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Confirm Password</label>
+                  <input 
+                    name="confirmPassword"
+                    type="password" 
+                    required 
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0090BF]/20 focus:border-[#0090BF] outline-none transition-all"
+                  />
+                </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-50 p-3 rounded-lg">
+                    <AlertCircle className="w-4 h-4" /> {error}
+                  </div>
+                )}
+
+                <button 
+                  type="submit"
+                  disabled={isPending || !token}
+                  className="w-full bg-[#0090BF] hover:bg-[#007EA8] text-white font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isPending ? "Updating..." : "Update Password"}
+                </button>
+                
+                {!token && (
+                  <p className="text-[10px] text-red-400 text-center font-bold uppercase mt-2 italic">
+                    Invalid or missing reset token.
+                  </p>
+                )}
+              </form>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center space-y-6"
+            >
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 text-green-500 shadow-inner">
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-slate-900">Password Updated</h2>
+                <p className="text-slate-500">Your security credentials have been refreshed. Redirecting you to login...</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// 3. Export the Page Component with Suspense
+export default function ResetPasswordPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2 bg-white selection:bg-[#0090BF] selection:text-white">
       
@@ -59,91 +146,10 @@ export default function ResetPasswordPage() {
         animate={{ opacity: 1, x: 0 }}
         className="flex flex-col gap-4 p-6 md:p-10"
       >
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <AnimatePresence mode="wait">
-              {!isSuccess ? (
-                <motion.div
-                  key="reset-form"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold tracking-tighter text-slate-900">Set New Password</h2>
-                    <p className="text-slate-500 mt-2">Choose a strong password to secure your account.</p>
-                  </div>
-
-                  <form onSubmit={handleReset} className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">New Password</label>
-                      <div className="relative">
-                        <input 
-                          name="password"
-                          type={showPassword ? "text" : "password"} 
-                          required 
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0090BF]/20 focus:border-[#0090BF] outline-none transition-all"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Confirm Password</label>
-                      <input 
-                        name="confirmPassword"
-                        type="password" 
-                        required 
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0090BF]/20 focus:border-[#0090BF] outline-none transition-all"
-                      />
-                    </div>
-
-                    {error && (
-                      <div className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-50 p-3 rounded-lg">
-                        <AlertCircle className="w-4 h-4" /> {error}
-                      </div>
-                    )}
-
-                    <button 
-                      type="submit"
-                      disabled={isPending || !token}
-                      className="w-full bg-[#0090BF] hover:bg-[#007EA8] text-white font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
-                    >
-                      {isPending ? "Updating..." : "Update Password"}
-                    </button>
-                    
-                    {!token && (
-                      <p className="text-[10px] text-red-400 text-center font-bold uppercase mt-2 italic">
-                        Invalid or missing reset token.
-                      </p>
-                    )}
-                  </form>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center space-y-6"
-                >
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 text-green-500 shadow-inner">
-                    <CheckCircle2 className="w-10 h-10" />
-                  </div>
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-slate-900">Password Updated</h2>
-                    <p className="text-slate-500">Your security credentials have been refreshed. Redirecting you to login...</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+        {/* WRAP THE FORM IN SUSPENSE */}
+        <Suspense fallback={<div className="flex justify-center items-center h-full">Loading...</div>}>
+          <ResetForm />
+        </Suspense>
       </motion.div>
 
       {/* RIGHT SIDE: Visual */}
