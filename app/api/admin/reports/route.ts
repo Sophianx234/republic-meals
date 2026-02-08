@@ -1,17 +1,12 @@
-import { getDatabase } from "@/lib/db"
-import { type NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+/* import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
 
     if (!session || session.user?.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const db = await getDatabase()
     const orders = await db.collection("orders").find({}).toArray()
 
     const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.totalPrice || 0), 0)
@@ -42,3 +37,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to generate reports" }, { status: 500 })
   }
 }
+ */
