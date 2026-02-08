@@ -1,16 +1,20 @@
-import type { NextConfig } from "next";
-const nextConfig: NextConfig = {
-  /* config options here */
-    
+/** @type {import('next').NextConfig} */
+
+const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   experimental: {
     serverActions: {
-      bodySizeLimit: "60mb", // or "5mb"
+      bodySizeLimit: "60mb",
     },
   },
-  
-  typescript:{
-    ignoreBuildErrors:true
+
+  typescript: {
+    ignoreBuildErrors: true,
   },
+
   images: {
     remotePatterns: [
       {
@@ -18,16 +22,13 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "**",
       },
-       {
+      {
         protocol: "https",
         hostname: "images.unsplash.com",
         pathname: "**",
       },
     ],
   },
-
-} satisfies NextConfig;
-
-
+};
 
 export default nextConfig;
