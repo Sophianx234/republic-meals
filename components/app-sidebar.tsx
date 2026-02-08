@@ -148,7 +148,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {/* FIXED: Removed 'mx-4' so icons fit when collapsed */}
       <SidebarContent>
         {/* SCENARIO A: STAFF VIEW */}
-        {role === "staff" && (
+        {role === "staff" || role === "admin" && (
            <NavMain items={NAV_ITEMS.staff} />
         )}
 
