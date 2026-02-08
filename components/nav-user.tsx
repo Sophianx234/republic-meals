@@ -130,8 +130,9 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
-              onSelect={() => {
-                
+              onSelect={(e) => {
+      // CRITICAL FIX: Stop the menu from closing immediately
+      e.preventDefault();
                 handleLogout();
               }} 
               className="cursor-pointer"
