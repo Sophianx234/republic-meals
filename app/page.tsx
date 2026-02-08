@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import SplashScreen from "@/components/splash-screen";
 
 // Professional Animation Variants
 
@@ -104,12 +105,22 @@ const fade = {
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
   return (
+    <>
+    <AnimatePresence mode="wait">
+        {isLoading && (
+          <SplashScreen onComplete={() => setIsLoading(false)} />
+        )}
+      </AnimatePresence>
+      <div className={`transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+
+      
     <div className="scroll-smooth min-h-screen bg-white font-sans text-slate-900 selection:bg-[#0090BF] selection:text-white">
       
       {/* --- NAVIGATION --- */}
@@ -651,5 +662,7 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </div>
+    </>
   );
 }
