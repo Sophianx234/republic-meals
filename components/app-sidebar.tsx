@@ -178,9 +178,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         )}
         {/* SCENARIO A: STAFF VIEW */}
-        {role === "staff" || role === "admin" && (
-           <NavMain items={NAV_ITEMS.staff} />
-        )}
+        {(role === "staff" || role === "admin") && (
+    <NavMain items={NAV_ITEMS.staff} />
+)}
 
         {/* SCENARIO B: RESTAURANT VIEW */}
         {role === "catering" && (
